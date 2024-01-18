@@ -18,19 +18,18 @@ void Scene::setLightSource(LightSource &lightSource)
 
 const Intersection Scene::intersect(const Ray &ray) const
 {
-    const Intersection baseIntersection;
-    const Intersection *intersection = &baseIntersection;
+    Intersection intersection;
 
     for (IntersectableObject *intersectableObject : intersectableObjects)
     {
         Intersection currentIntersection = intersectableObject->intersect(ray);
-        if (intersection == nullptr || currentIntersection.getDistance() < intersection->getDistance())
+        if (currentIntersection.getDistance() < intersection.getDistance())
         {
-            intersection = &currentIntersection;
+            intersection = currentIntersection;
         }
     }
 
-    return *intersection;
+    return intersection;
 }
 
 const Vector3 Scene::calculateLambertianShading(const Intersection &intersection) const

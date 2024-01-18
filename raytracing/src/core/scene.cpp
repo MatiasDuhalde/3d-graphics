@@ -49,7 +49,7 @@ const Vector3 Scene::calculateLambertianShading(const Intersection &intersection
     double d2 = lightDirection.norm2();
     const Vector3 normalizedLightDirection = lightDirection.normalize();
 
-    const double surfacePower = lightSourceIntensity / (4 * M_PI * d2);
+    const double surfacePower = lightSourceIntensity / (4. * M_PI * d2);
 
     const double k = surfacePower * std::max(0., intersectionNormal.dot(normalizedLightDirection)) / M_PI;
     return intersectionAlbedo * k;

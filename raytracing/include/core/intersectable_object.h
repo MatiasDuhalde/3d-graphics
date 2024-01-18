@@ -5,7 +5,6 @@
 
 class IntersectableObject : public Object
 {
-
   public:
     virtual const Intersection intersect(const Ray &ray) const = 0;
 };

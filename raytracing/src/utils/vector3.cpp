@@ -75,7 +75,7 @@ const double Vector3::norm2() const
 Vector3 Vector3::normalize() const
 {
     double n = norm();
-    return Vector3(coord[0] / n, coord[1] / n, coord[2] / n);
+    return *this / n;
 }
 
 std::ostream &operator<<(std::ostream &os, const Vector3 &vector3)

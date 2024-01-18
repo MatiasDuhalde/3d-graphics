@@ -31,11 +31,11 @@ const Intersection Sphere::intersect(const Ray &ray) const
     const Vector3 rayOrigin = ray.getOrigin();
     const Vector3 rayDirection = ray.getDirection();
 
-    const Vector3 originToCenter = rayOrigin - this->center;
+    const Vector3 centerToOrigin = rayOrigin - this->center;
 
-    const double distanceDot = rayDirection.dot(originToCenter);
+    const double distanceDot = rayDirection.dot(centerToOrigin);
 
-    const double determinant = pow(distanceDot, 2) - originToCenter.norm2() + pow(this->radius, 2);
+    const double determinant = pow(distanceDot, 2) - centerToOrigin.norm2() + pow(this->radius, 2);
 
     if (determinant < 0)
     {

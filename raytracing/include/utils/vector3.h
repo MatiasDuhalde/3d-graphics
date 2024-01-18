@@ -3,10 +3,10 @@
 
 class Vector3
 {
-private:
+  private:
     double coord[3];
 
-public:
+  public:
     explicit Vector3(double x, double y, double z);
 
     const double getX() const;

@@ -5,11 +5,11 @@
 
 class LightSource
 {
-private:
+  private:
     Vector3 position;
     double intensity;
 
-public:
+  public:
     LightSource(const Vector3 &position, const double intensity);
     const Vector3 &getPosition() const;
     const double getIntensity() const;

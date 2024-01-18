@@ -1,18 +1,18 @@
 #pragma once
 #include "../utils/vector3.h"
-#include "ray.h"
-#include "intersection.h"
 #include "intersectable_object.h"
+#include "intersection.h"
+#include "ray.h"
 
 class Sphere : public IntersectableObject
 {
-private:
+  private:
     Vector3 center;
     double radius;
 
     Vector3 albedo;
 
-public:
+  public:
     Sphere(const Vector3 &center, const double radius, const Vector3 &albedo);
 
     const Vector3 &getCenter() const;

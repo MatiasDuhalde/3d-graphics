@@ -5,16 +5,17 @@
 
 class Intersection
 {
-private:
+  private:
     const bool hit;
     const Vector3 *point;
     const Vector3 *normal;
     const double distance;
     const Vector3 *albedo;
 
-public:
+  public:
     Intersection();
-    Intersection(const bool hit, const Vector3 &point, const Vector3 &normal, const double distance, const Vector3 &albedo);
+    Intersection(const bool hit, const Vector3 &point, const Vector3 &normal, const double distance,
+                 const Vector3 &albedo);
     const bool isHit() const;
     const Vector3 &getPoint() const;
     const Vector3 &getNormal() const;

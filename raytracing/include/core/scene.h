@@ -1,16 +1,16 @@
 #pragma once
-#include <vector>
 #include "intersectable_object.h"
 #include "intersection.h"
 #include "light_source.h"
+#include <vector>
 
 class Scene
 {
-private:
+  private:
     std::vector<IntersectableObject *> intersectableObjects;
     LightSource *lightSource;
 
-public:
+  public:
     Scene();
 
     void addIntersectableObject(IntersectableObject &intersectableObject);

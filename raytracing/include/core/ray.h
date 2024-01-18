@@ -5,12 +5,12 @@
 
 class Ray
 {
-private:
+  private:
     const Vector3 origin;
     // Unit vector
     const Vector3 direction;
 
-public:
+  public:
     Ray(const Vector3 &origin, const Vector3 &direction);
 
     const Vector3 &getOrigin() const;

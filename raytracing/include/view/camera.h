@@ -3,12 +3,12 @@
 
 class Camera
 {
-private:
+  private:
     Vector3 origin;
     // field of view in radians
     double fov;
 
-public:
+  public:
     Camera(const Vector3 &origin, const double fov);
 
     const Vector3 &getOrigin() const;

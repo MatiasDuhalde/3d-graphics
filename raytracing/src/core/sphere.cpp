@@ -1,8 +1,9 @@
 #include "../../include/core/sphere.h"
-#include <iostream>
 #include <cmath>
+#include <iostream>
 
-Sphere::Sphere(const Vector3 &center, const double radius, const Vector3 &albedo) : center(center), radius(radius), albedo(albedo)
+Sphere::Sphere(const Vector3 &center, const double radius, const Vector3 &albedo)
+    : center(center), radius(radius), albedo(albedo)
 {
 }
 

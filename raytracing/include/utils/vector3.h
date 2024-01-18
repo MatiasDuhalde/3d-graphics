@@ -18,18 +18,18 @@ public:
     double operator[](const int i) const;
 
     Vector3 operator+(const Vector3 &other) const;
-
     Vector3 operator-(const Vector3 &other) const;
-
     Vector3 operator*(double a) const;
-
+    Vector3 operator/(double a) const;
     Vector3 operator+=(const Vector3 &other);
 
     const double dot(const Vector3 &other) const;
 
+    const double norm() const;
+
     const double norm2() const;
 
-    void normalize();
+    Vector3 normalize() const;
 
     friend std::ostream &operator<<(std::ostream &os, const Vector3 &vector3);
 };

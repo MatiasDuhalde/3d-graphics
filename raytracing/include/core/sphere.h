@@ -10,10 +10,10 @@ private:
     Vector3 center;
     double radius;
 
-    double albedo;
+    Vector3 albedo;
 
 public:
-    Sphere(const Vector3 &center, const double radius);
+    Sphere(const Vector3 &center, const double radius, const Vector3 &albedo);
 
     const Vector3 &getCenter() const;
     const double getRadius() const;

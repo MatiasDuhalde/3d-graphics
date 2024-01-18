@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cmath>
 
-Sphere::Sphere(const Vector3 &center, const double radius) : center(center), radius(radius), albedo(0)
+Sphere::Sphere(const Vector3 &center, const double radius, const Vector3 &albedo) : center(center), radius(radius), albedo(albedo)
 {
 }
 
@@ -61,9 +61,8 @@ const Intersection Sphere::intersect(const Ray &ray) const
         distance = t2;
     }
 
-    Vector3 intersectionPoint = rayOrigin + rayDirection * distance;
-    Vector3 normal = intersectionPoint - this->center;
-    normal.normalize();
+    const Vector3 intersectionPoint = rayOrigin + rayDirection * distance;
+    const Vector3 normal = (intersectionPoint - this->center).normalize();
 
-    return Intersection(true, intersectionPoint, normal, distance);
+    return Intersection(true, intersectionPoint, normal, distance, albedo);
 }

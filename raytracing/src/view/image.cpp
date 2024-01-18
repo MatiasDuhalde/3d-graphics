@@ -47,13 +47,6 @@ void Image::draw() const
         throw NoSceneSetException();
     }
 
-    Vector3 center(0.2, 0.1, 0.);
-
-    Vector3 cameraOrigin = camera->getOrigin();
-
-    int halfWidth = width / 2;
-    int halfHeight = height / 2;
-
 #pragma omp parallel for
     for (int i = 0; i < height; i++)
     {
@@ -79,33 +72,30 @@ void Image::renderPixel(const int i, const int j, const Intersection &intersecti
 
     const Vector3 lambertianShading = scene->calculateLambertianShading(intersection);
 
-    image[(i * width + j) * 3 + 0] = 255 * lambertianShading[0]; // RED
-    image[(i * width + j) * 3 + 1] = 255 * lambertianShading[1]; // GREEN
-    image[(i * width + j) * 3 + 2] = 255 * lambertianShading[2]; // BLUE
+    image[(i * width + j) * 3 + 0] = std::min(255., std::max(0., lambertianShading[0])); // RED
+    image[(i * width + j) * 3 + 1] = std::min(255., std::max(0., lambertianShading[1])); // GREEN
+    image[(i * width + j) * 3 + 2] = std::min(255., std::max(0., lambertianShading[2])); // BLUE
 }
 
 Ray Image::calculatePixelRay(const int i, const int j) const
 {
-    Vector3 cameraOrigin = camera->getOrigin();
+    const Vector3 cameraOrigin = camera->getOrigin();
 
-    Vector3 pixelPosition = calculatePixelPosition(i, j);
+    const Vector3 pixelPosition = calculatePixelPosition(i, j);
 
-    Vector3 rayDirection = (pixelPosition - cameraOrigin);
-    rayDirection.normalize();
+    const Vector3 rayDirection = (pixelPosition - cameraOrigin).normalize();
 
     return Ray(cameraOrigin, rayDirection);
 }
 
 Vector3 Image::calculatePixelPosition(const int i, const int j) const
 {
-    Vector3 cameraOrigin = camera->getOrigin();
+    const Vector3 cameraOrigin = camera->getOrigin();
 
-    Vector3 pixelPosition = Vector3(
+    return Vector3(
         cameraOrigin[0] + j + 0.5 - width / 2,
         cameraOrigin[1] + i + 0.5 - height / 2,
         cameraOrigin[2] - width / (2 * tan(camera->getFov() / 2)));
-
-    return pixelPosition;
 }
 
 void Image::save(const std::string filename) const

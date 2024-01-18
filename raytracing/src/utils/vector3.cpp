@@ -43,6 +43,11 @@ Vector3 Vector3::operator*(double a) const
     return Vector3(a * coord[0], a * coord[1], a * coord[2]);
 }
 
+Vector3 Vector3::operator/(double a) const
+{
+    return Vector3(coord[0] / a, coord[1] / a, coord[2] / a);
+}
+
 Vector3 Vector3::operator+=(const Vector3 &other)
 {
     coord[0] += other[0];
@@ -57,17 +62,20 @@ const double Vector3::dot(const Vector3 &other) const
     return coord[0] * other[0] + coord[1] * other[1] + coord[2] * other[2];
 }
 
+const double Vector3::norm() const
+{
+    return sqrt(norm2());
+}
+
 const double Vector3::norm2() const
 {
     return pow(coord[0], 2) + pow(coord[1], 2) + pow(coord[2], 2);
 }
 
-void Vector3::normalize()
+Vector3 Vector3::normalize() const
 {
-    double norm = sqrt(norm2());
-    coord[0] /= norm;
-    coord[1] /= norm;
-    coord[2] /= norm;
+    double n = norm();
+    return Vector3(coord[0] / n, coord[1] / n, coord[2] / n);
 }
 
 std::ostream &operator<<(std::ostream &os, const Vector3 &vector3)

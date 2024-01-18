@@ -21,20 +21,23 @@ int main()
 
     Sphere smallSphere(Vector3(0, 0, 0), 10, Vector3(1, 0, 0));
 
-    // Sphere sphere1(Vector3(0, 1000, 0), 940, Vector3(1, 0, 0));
-    // Sphere sphere2(Vector3(0, 0, 1000), 940, Vector3(0, 1, 0));
-    // Sphere sphere3(Vector3(0, -1000, 0), 990, Vector3(0, 0, 1));
-    Sphere sphere4(Vector3(0, 0, -1000), 940, Vector3(1, 0, 1));
-    Sphere bottomSphere(Vector3(0, -1000, 0), 960, Vector3(1, 0, 1));
+    Sphere leftSphere(Vector3(-1000, 0, 0), 940, Vector3(0, 1, 1));
+    Sphere rightSphere(Vector3(1000, 0, 0), 940, Vector3(1, 1, 0));
+    Sphere upSphere(Vector3(0, 1000, 0), 940, Vector3(1, 0, 0));
+    Sphere downSphere(Vector3(0, -1000, 0), 990, Vector3(0, 0, 1));
+    Sphere frontSphere(Vector3(0, 0, 1000), 940, Vector3(0, 1, 0));
+    Sphere backSphere(Vector3(0, 0, -1000), 940, Vector3(1, 0, 1));
 
-    // scene.addIntersectableObject(sphere1);
-    // scene.addIntersectableObject(sphere2);
-    // scene.addIntersectableObject(sphere3);
-    // scene.addIntersectableObject(sphere4);
     scene.addIntersectableObject(smallSphere);
-    scene.addIntersectableObject(bottomSphere);
 
-    LightSource lightSource(Vector3(-10, 20, 40), 1E7);
+    scene.addIntersectableObject(leftSphere);
+    scene.addIntersectableObject(rightSphere);
+    scene.addIntersectableObject(upSphere);
+    scene.addIntersectableObject(downSphere);
+    scene.addIntersectableObject(frontSphere);
+    scene.addIntersectableObject(backSphere);
+
+    LightSource lightSource(Vector3(-10, 20, 40), 5E7);
     scene.setLightSource(lightSource);
 
     Camera camera(Vector3(0, 0, 55), 60 * M_PI / 180.);

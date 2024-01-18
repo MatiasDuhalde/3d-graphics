@@ -94,7 +94,7 @@ Vector3 Image::calculatePixelPosition(const int i, const int j) const
 
     return Vector3(
         cameraOrigin[0] + j + 0.5 - width / 2,
-        cameraOrigin[1] + i + 0.5 - height / 2,
+        cameraOrigin[1] - i - 0.5 + height / 2,
         cameraOrigin[2] - width / (2 * tan(camera->getFov() / 2)));
 }
 

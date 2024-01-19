@@ -6,9 +6,9 @@
 class Ray
 {
   private:
-    const Vector3 origin;
+    Vector3 origin;
     // Unit vector
-    const Vector3 direction;
+    Vector3 direction;
 
   public:
     Ray(const Vector3 &origin, const Vector3 &direction);

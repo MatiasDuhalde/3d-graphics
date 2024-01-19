@@ -10,6 +10,8 @@ class Scene
     std::vector<IntersectableObject *> intersectableObjects;
     LightSource *lightSource;
 
+    const Intersection recursiveIntersect(const Ray &ray, const int depth) const;
+
   public:
     Scene();
 

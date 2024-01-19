@@ -19,7 +19,7 @@ int main()
 
     Scene scene;
 
-    Sphere smallSphere(Vector3(0, 0, 0), 10, Vector3(1, 0, 0));
+    Sphere smallSphere(Vector3(0, 0, 0), 10);
 
     Sphere leftSphere(Vector3(-1000, 0, 0), 940, Vector3(0, 1, 1));
     Sphere rightSphere(Vector3(1000, 0, 0), 940, Vector3(1, 1, 0));

@@ -63,15 +63,6 @@ void Image::draw() const
 
 void Image::renderPixel(const int i, const int j, const Intersection &intersection) const
 {
-    if (!intersection.isHit())
-    {
-        image[(i * width + j) * 3 + 0] = 0; // RED
-        image[(i * width + j) * 3 + 1] = 0; // GREEN
-        image[(i * width + j) * 3 + 2] = 0; // BLUE
-
-        return;
-    }
-
     const Vector3 lambertianShading = scene->calculateLambertianShading(intersection);
 
     image[(i * width + j) * 3 + 0] = std::min(255., std::max(0., pow(lambertianShading[0], GAMMA_CORRECTION))); // RED

@@ -1,9 +1,14 @@
 #include "../../include/core/sphere.h"
+#include "../../include/utils/constants.h"
 #include <cmath>
 #include <iostream>
 
+Sphere::Sphere(const Vector3 &center, const double radius) : center(center), radius(radius), albedo(), mirror(true)
+{
+}
+
 Sphere::Sphere(const Vector3 &center, const double radius, const Vector3 &albedo)
-    : center(center), radius(radius), albedo(albedo)
+    : center(center), radius(radius), albedo(albedo), mirror(false)
 {
 }
 
@@ -15,6 +20,11 @@ const Vector3 &Sphere::getCenter() const
 const double Sphere::getRadius() const
 {
     return this->radius;
+}
+
+const bool Sphere::isMirror() const
+{
+    return this->mirror;
 }
 
 void Sphere::setCenter(const Vector3 &center)
@@ -63,7 +73,17 @@ const Intersection Sphere::intersect(const Ray &ray) const
     }
 
     const Vector3 intersectionPoint = rayOrigin + rayDirection * distance;
+
     const Vector3 normal = (intersectionPoint - this->center).normalize();
 
-    return Intersection(true, intersectionPoint, normal, distance, albedo);
+    if (this->mirror)
+    {
+        const Vector3 reflectedDirection = rayDirection - normal * 2 * rayDirection.dot(normal);
+        const Vector3 pointOverSurface = intersectionPoint + reflectedDirection * SURFACE_LIGHT_RAY_EPSILON;
+        const Ray reflectedRay(pointOverSurface, reflectedDirection);
+
+        return Intersection(true, intersectionPoint, normal, distance, reflectedRay);
+    }
+
+    return Intersection(true, intersectionPoint, normal, distance, albedo.value());
 }

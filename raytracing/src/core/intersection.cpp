@@ -2,13 +2,20 @@
 #include "../../include/core/intersection.h"
 #include <cmath>
 
-Intersection::Intersection() : hit(false), point(), normal(), distance(INFINITY), albedo()
+Intersection::Intersection()
+    : hit(false), point(), normal(), distance(INFINITY), albedo(), reflected(false), reflectedRay()
+{
+}
+
+Intersection::Intersection(const bool hit, const Vector3 &point, const Vector3 &normal, const double distance,
+                           const Ray &reflectedRay)
+    : hit(hit), point(point), normal(normal), distance(distance), albedo(), reflected(true), reflectedRay(reflectedRay)
 {
 }
 
 Intersection::Intersection(const bool hit, const Vector3 &point, const Vector3 &normal, const double distance,
                            const Vector3 &albedo)
-    : hit(hit), point(point), normal(normal), distance(distance), albedo(albedo)
+    : hit(hit), point(point), normal(normal), distance(distance), albedo(albedo), reflected(false), reflectedRay()
 {
 }
 
@@ -21,7 +28,7 @@ const Vector3 &Intersection::getPoint() const
 {
     if (!this->point.has_value())
     {
-        throw UnsetIntersectionException();
+        throw UnsetIntersectionPointException(*this);
     }
     return this->point.value();
 }
@@ -30,7 +37,7 @@ const Vector3 &Intersection::getNormal() const
 {
     if (!this->normal.has_value())
     {
-        throw UnsetIntersectionException();
+        throw UnsetIntersectionNormalException(*this);
     }
     return this->normal.value();
 }
@@ -44,9 +51,19 @@ const Vector3 &Intersection::getAlbedo() const
 {
     if (!this->albedo.has_value())
     {
-        throw UnsetIntersectionException();
+        throw UnsetIntersectionAlbedoException(*this);
     }
     return this->albedo.value();
+}
+
+const bool Intersection::isReflected() const
+{
+    return this->reflected;
+}
+
+const Ray &Intersection::getReflectedRay() const
+{
+    return this->reflectedRay.value();
 }
 
 std::ostream &operator<<(std::ostream &os, const Intersection &intersection)
@@ -64,6 +81,11 @@ std::ostream &operator<<(std::ostream &os, const Intersection &intersection)
     if (intersection.albedo.has_value())
     {
         os << ", albedo: " << intersection.albedo.value();
+    }
+    os << ", reflected: " << intersection.reflected;
+    if (intersection.reflectedRay.has_value())
+    {
+        os << ", reflectedRay: " << intersection.reflectedRay.value();
     }
     os << ")";
 

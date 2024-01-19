@@ -17,8 +17,13 @@ void Scene::setLightSource(LightSource &lightSource)
     this->lightSource = &lightSource;
 }
 
-const Intersection Scene::intersect(const Ray &ray) const
+const Intersection Scene::recursiveIntersect(const Ray &ray, const int depth) const
 {
+    if (depth >= MAX_RECURSION_DEPTH)
+    {
+        return Intersection();
+    }
+
     Intersection intersection;
 
     for (IntersectableObject *intersectableObject : intersectableObjects)
@@ -30,12 +35,24 @@ const Intersection Scene::intersect(const Ray &ray) const
         }
     }
 
-    return intersection;
+    if (!intersection.isHit() || !intersection.isReflected())
+    {
+        return intersection;
+    }
+
+    Ray reflectedRay = intersection.getReflectedRay();
+
+    return recursiveIntersect(reflectedRay, depth + 1);
+}
+
+const Intersection Scene::intersect(const Ray &ray) const
+{
+    return recursiveIntersect(ray, 0);
 }
 
 const Vector3 Scene::calculateLambertianShading(const Intersection &intersection) const
 {
-    if (lightSource == nullptr)
+    if (lightSource == nullptr || !intersection.isHit())
     {
         return Vector3(0., 0., 0.);
     }

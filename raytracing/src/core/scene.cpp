@@ -17,13 +17,8 @@ void Scene::setLightSource(LightSource &lightSource)
     this->lightSource = &lightSource;
 }
 
-const Intersection Scene::recursiveIntersect(const Ray &ray, const int depth) const
+const Intersection Scene::intersect(const Ray &ray) const
 {
-    if (depth >= MAX_RECURSION_DEPTH)
-    {
-        return Intersection();
-    }
-
     Intersection intersection;
 
     for (IntersectableObject *intersectableObject : intersectableObjects)
@@ -35,29 +30,42 @@ const Intersection Scene::recursiveIntersect(const Ray &ray, const int depth) co
         }
     }
 
-    if (!intersection.isHit() || !intersection.isReflected())
-    {
-        return intersection;
-    }
-
-    Ray reflectedRay = intersection.getReflectedRay();
-
-    return recursiveIntersect(reflectedRay, depth + 1);
-}
-
-const Intersection Scene::intersect(const Ray &ray) const
-{
-    return recursiveIntersect(ray, 0);
+    return intersection;
 }
 
 const Vector3 Scene::calculateLambertianShading(const Intersection &intersection) const
 {
-    if (lightSource == nullptr || !intersection.isHit())
+    Intersection diffuseIntersection;
+
+    if (intersection.isReflected())
+    {
+        Intersection recursiveIntersection = intersection;
+
+        int depth = 0;
+        while (recursiveIntersection.isReflected())
+        {
+            const Ray recursiveRay = recursiveIntersection.getReflectedRay();
+            recursiveIntersection = intersect(recursiveRay);
+            if (depth > MAX_RECURSION_DEPTH)
+            {
+                return Vector3(0., 0., 0.);
+            }
+            depth++;
+        }
+
+        diffuseIntersection = recursiveIntersection;
+    }
+    else
+    {
+        diffuseIntersection = intersection;
+    }
+
+    if (lightSource == nullptr || !diffuseIntersection.isHit())
     {
         return Vector3(0., 0., 0.);
     }
 
-    const Vector3 intersectionPoint = intersection.getPoint();
+    const Vector3 intersectionPoint = diffuseIntersection.getPoint();
     const Vector3 lightSourcePosition = lightSource->getPosition();
 
     const double lightSourceIntensity = lightSource->getIntensity();
@@ -82,8 +90,8 @@ const Vector3 Scene::calculateLambertianShading(const Intersection &intersection
 
     double d2 = lightDirection.norm2();
 
-    const Vector3 intersectionNormal = intersection.getNormal();
-    const Vector3 intersectionAlbedo = intersection.getAlbedo();
+    const Vector3 intersectionNormal = diffuseIntersection.getNormal();
+    const Vector3 intersectionAlbedo = diffuseIntersection.getAlbedo();
 
     const double surfacePower = lightSourceIntensity / (4. * M_PI * d2);
 

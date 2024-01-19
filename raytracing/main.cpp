@@ -12,8 +12,8 @@
 
 int main()
 {
-    const int imageWidth = 512;
-    const int imageHeight = 512;
+    constexpr int imageWidth = 512;
+    constexpr int imageHeight = 512;
 
     Image image(imageWidth, imageHeight);
 
@@ -37,10 +37,14 @@ int main()
     scene.addIntersectableObject(frontSphere);
     scene.addIntersectableObject(backSphere);
 
-    LightSource lightSource(Vector3(-10, 20, 40), 5E7);
+    constexpr double lightSourceIntensity = 5E9;
+
+    LightSource lightSource(Vector3(-10, 20, 40), lightSourceIntensity);
     scene.setLightSource(lightSource);
 
-    Camera camera(Vector3(0, 0, 55), 60 * M_PI / 180.);
+    constexpr double cameraFov = 75 * M_PI / 180.;
+
+    Camera camera(Vector3(0, 0, 55), cameraFov);
     image.setCamera(camera);
 
     image.setScene(scene);

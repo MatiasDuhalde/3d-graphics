@@ -7,6 +7,7 @@
 
 #include "../../include/view/image.h"
 
+#include "../../include/utils/constants.h"
 #include "../../include/utils/vector3.h"
 
 Image::Image(const int width, const int height, Camera &camera, Scene &scene)
@@ -73,9 +74,9 @@ void Image::renderPixel(const int i, const int j, const Intersection &intersecti
 
     const Vector3 lambertianShading = scene->calculateLambertianShading(intersection);
 
-    image[(i * width + j) * 3 + 0] = std::min(255., std::max(0., lambertianShading[0])); // RED
-    image[(i * width + j) * 3 + 1] = std::min(255., std::max(0., lambertianShading[1])); // GREEN
-    image[(i * width + j) * 3 + 2] = std::min(255., std::max(0., lambertianShading[2])); // BLUE
+    image[(i * width + j) * 3 + 0] = std::min(255., std::max(0., pow(lambertianShading[0], GAMMA_CORRECTION))); // RED
+    image[(i * width + j) * 3 + 1] = std::min(255., std::max(0., pow(lambertianShading[1], GAMMA_CORRECTION))); // GREEN
+    image[(i * width + j) * 3 + 2] = std::min(255., std::max(0., pow(lambertianShading[2], GAMMA_CORRECTION))); // BLUE
 }
 
 Ray Image::calculatePixelRay(const int i, const int j) const

@@ -1,6 +1,7 @@
 #include <cmath>
 
 #include "../../include/core/scene.h"
+#include "../../include/utils/constants.h"
 
 Scene::Scene() : intersectableObjects(std::vector<IntersectableObject *>()), lightSource(nullptr)
 {
@@ -39,15 +40,33 @@ const Vector3 Scene::calculateLambertianShading(const Intersection &intersection
         return Vector3(0., 0., 0.);
     }
 
-    const Vector3 lightSourcePosition = lightSource->getPosition();
-    const double lightSourceIntensity = lightSource->getIntensity();
     const Vector3 intersectionPoint = intersection.getPoint();
-    const Vector3 intersectionNormal = intersection.getNormal();
-    const Vector3 intersectionAlbedo = intersection.getAlbedo();
+    const Vector3 lightSourcePosition = lightSource->getPosition();
+
+    const double lightSourceIntensity = lightSource->getIntensity();
 
     const Vector3 lightDirection = (lightSourcePosition - intersectionPoint);
-    double d2 = lightDirection.norm2();
     const Vector3 normalizedLightDirection = lightDirection.normalize();
+
+    const Vector3 pointOverSurface = intersectionPoint + normalizedLightDirection * SURFACE_LIGHT_RAY_EPSILON;
+
+    const Ray lightSourceRay(pointOverSurface, normalizedLightDirection);
+
+    const Intersection lightIntersection = this->intersect(lightSourceRay);
+
+    if (lightIntersection.isHit())
+    {
+        const double lightSourceDistance = (lightSourcePosition - intersectionPoint).norm();
+        if (lightIntersection.getDistance() < lightSourceDistance)
+        {
+            return Vector3(0., 0., 0.);
+        }
+    }
+
+    double d2 = lightDirection.norm2();
+
+    const Vector3 intersectionNormal = intersection.getNormal();
+    const Vector3 intersectionAlbedo = intersection.getAlbedo();
 
     const double surfacePower = lightSourceIntensity / (4. * M_PI * d2);
 

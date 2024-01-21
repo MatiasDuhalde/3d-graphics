@@ -1,4 +1,5 @@
 #pragma once
+#include <cmath>
 #include <exception>
 #include <iostream>
 #include <optional>
@@ -9,81 +10,58 @@
 class Intersection
 {
   private:
-    bool hit;
-    std::optional<Vector3> point;
-    std::optional<Vector3> normal;
-    double distance;
-    std::optional<Vector3> albedo;
-    bool reflected;
-    std::optional<Ray> reflectedRay;
+    bool hit = false;
+    std::optional<Vector3> point = Defaults::POINT;
+    std::optional<Vector3> normal = Defaults::NORMAL;
+    double distance = Defaults::DISTANCE;
+    std::optional<Vector3> albedo = Defaults::ALBEDO;
+    bool reflected = Defaults::REFLECTED;
+    std::optional<Ray> reflectedRay = Defaults::REFLECTED_RAY;
+    bool refracted = Defaults::REFRACTED;
+    std::optional<Ray> refractedRay = Defaults::REFRACTED_RAY;
 
   public:
-    Intersection();
-    Intersection(const bool hit, const Vector3 &point, const Vector3 &normal, const double distance,
-                 const Ray &reflectedRay);
-    Intersection(const bool hit, const Vector3 &point, const Vector3 &normal, const double distance,
-                 const Vector3 &albedo);
+    struct Defaults
+    {
+        static constexpr bool HIT = false;
+        static constexpr std::optional<Vector3> POINT = std::nullopt;
+        static constexpr std::optional<Vector3> NORMAL = std::nullopt;
+        static constexpr double DISTANCE = INFINITY;
+        static constexpr std::optional<Vector3> ALBEDO = std::nullopt;
+        static constexpr bool REFLECTED = false;
+        static constexpr std::optional<Ray> REFLECTED_RAY = std::nullopt;
+        static constexpr bool REFRACTED = false;
+        static constexpr std::optional<Ray> REFRACTED_RAY = std::nullopt;
+    };
+
     const bool isHit() const;
+    const Intersection &setHit(const bool hit);
     const Vector3 &getPoint() const;
+    const Intersection &setPoint(const Vector3 &point);
     const Vector3 &getNormal() const;
+    const Intersection &setNormal(const Vector3 &normal);
     const double getDistance() const;
+    const Intersection &setDistance(const double distance);
     const Vector3 &getAlbedo() const;
+    const Intersection &setAlbedo(const Vector3 &albedo);
     const bool isReflected() const;
+    const Intersection &setReflected(const bool reflected);
     const Ray &getReflectedRay() const;
+    const Intersection &setReflectedRay(const Ray &reflectedRay);
+    const bool isRefracted() const;
+    const Intersection &setRefracted(const bool refracted);
+    const Ray &getRefractedRay() const;
+    const Intersection &setRefractedRay(const Ray &refractedRay);
 
     friend std::ostream &operator<<(std::ostream &os, const Intersection &intersection);
-};
 
-class IntersectionException : public std::exception
-{
-  protected:
-    const Intersection &intersection;
-
-  public:
-    IntersectionException(const Intersection &intersection) : intersection(intersection){};
-};
-
-class UnsetIntersectionPointException : public IntersectionException
-{
-    using IntersectionException::IntersectionException;
-
-  public:
-    const char *what() const throw()
+    class Exception : public std::exception
     {
-        if (!intersection.isHit())
-        {
-            return "This intersection does not have a point set because it is not a hit";
-        }
-        return "This intersection does not have a point set";
-    }
-};
+      private:
+        std::string message;
 
-class UnsetIntersectionNormalException : public IntersectionException
-{
-    using IntersectionException::IntersectionException;
-
-  public:
-    const char *what() const throw()
-    {
-        if (!intersection.isHit())
-        {
-            return "This intersection does not have a point set because it is not a hit";
-        }
-        return "This intersection does not have a point set";
-    }
-};
-
-class UnsetIntersectionAlbedoException : public IntersectionException
-{
-    using IntersectionException::IntersectionException;
-
-  public:
-    const char *what() const throw()
-    {
-        if (!intersection.isHit())
-        {
-            return "This intersection does not have an albedo set because it is not a hit";
-        }
-        return "This intersection does not have an albedo set";
-    }
+      public:
+        Exception(const std::string &message);
+        const char *what() const noexcept override;
+    };
 };

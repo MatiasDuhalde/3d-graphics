@@ -6,22 +6,24 @@ LightSource::LightSource(const Vector3 &position, const double intensity) : posi
 
 const Vector3 &LightSource::getPosition() const
 {
-    return this->position;
+    return position;
+}
+
+const LightSource &LightSource::setPosition(const Vector3 &position)
+{
+    this->position = position;
+    return *this;
 }
 
 const double LightSource::getIntensity() const
 {
-    return this->intensity;
+    return intensity;
 }
 
-void LightSource::setPosition(const Vector3 &position)
-{
-    this->position = position;
-}
-
-void LightSource::setIntensity(const double intensity)
+const LightSource &LightSource::setIntensity(const double intensity)
 {
     this->intensity = intensity;
+    return *this;
 }
 
 std::ostream &operator<<(std::ostream &os, const LightSource &lightSource)

@@ -10,43 +10,37 @@
 #include "../../include/utils/constants.h"
 #include "../../include/utils/vector3.h"
 
-Image::Image(const int width, const int height, Camera &camera, Scene &scene)
-    : width(width), height(height), camera(&camera), scene(&scene)
-{
-    Image(width, height);
-}
-
 Image::Image(const int width, const int height) : width(width), height(height)
 {
-    this->image = new unsigned char[width * height * colorChannels];
-    this->camera = nullptr;
-    this->scene = nullptr;
+    image = new unsigned char[width * height * colorChannels];
 }
 
 Image::~Image()
 {
-    delete[] this->image;
+    delete[] image;
 }
 
-void Image::setCamera(Camera &camera)
+Image &Image::setCamera(Camera &camera)
 {
     this->camera = &camera;
+    return *this;
 }
 
-void Image::setScene(Scene &scene)
+Image &Image::setScene(Scene &scene)
 {
     this->scene = &scene;
+    return *this;
 }
 
 void Image::draw() const
 {
     if (camera == nullptr)
     {
-        throw NoCameraSetException();
+        throw Exception("Camera is not set");
     }
     if (scene == nullptr)
     {
-        throw NoSceneSetException();
+        throw Exception("Scene is not set");
     }
 
 #pragma omp parallel for
@@ -92,4 +86,13 @@ Vector3 Image::calculatePixelPosition(const int i, const int j) const
 void Image::save(const std::string filename) const
 {
     stbi_write_png(filename.c_str(), width, height, colorChannels, &image[0], 0);
+}
+
+Image::Exception::Exception(const std::string &message) : message(message)
+{
+}
+
+const char *Image::Exception::what() const noexcept
+{
+    return message.c_str();
 }

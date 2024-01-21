@@ -5,6 +5,10 @@
 #include "../core/scene.h"
 #include "camera.h"
 
+/**
+ * @brief Describes an image that can be rendered
+ *
+ */
 class Image
 {
   private:
@@ -12,8 +16,8 @@ class Image
     const int height;
     unsigned char *image;
     const int colorChannels = 3;
-    Camera *camera;
-    Scene *scene;
+    Camera *camera = nullptr;
+    Scene *scene = nullptr;
 
     Ray calculatePixelRay(const int i, const int j) const;
     Vector3 calculatePixelPosition(const int i, const int j) const;
@@ -21,28 +25,30 @@ class Image
 
   public:
     Image(const int width, const int height);
-    Image(const int width, const int height, Camera &camera, Scene &scene);
     ~Image();
-    void setCamera(Camera &camera);
-    void setScene(Scene &scene);
+    Image &setCamera(Camera &camera);
+    Image &setScene(Scene &scene);
+
+    /**
+     * @brief Calculate the pixels of the image
+     *
+     */
     void draw() const;
+
+    /**
+     * @brief Save the image to a file
+     *
+     * @param filename The name of the file to save the image to
+     */
     void save(const std::string filename) const;
-};
 
-class NoCameraSetException : public std::exception
-{
-  public:
-    const char *what() const throw()
+    class Exception : public std::exception
     {
-        return "No camera has been set";
-    }
-};
+      private:
+        std::string message;
 
-class NoSceneSetException : public std::exception
-{
-  public:
-    const char *what() const throw()
-    {
-        return "No scene has been set";
-    }
+      public:
+        Exception(const std::string &message);
+        const char *what() const noexcept override;
+    };
 };

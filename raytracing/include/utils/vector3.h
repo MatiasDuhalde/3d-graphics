@@ -7,7 +7,7 @@ class Vector3
     double coord[3];
 
   public:
-    explicit Vector3(double x, double y, double z);
+    explicit constexpr Vector3(const double x, const double y, const double z) : coord{x, y, z} {};
 
     const double getX() const;
 

@@ -9,6 +9,7 @@
 #include "include/core/light_source.h"
 #include "include/core/scene.h"
 #include "include/core/sphere.h"
+#include "include/core/sphere_builder.h"
 
 int main()
 {
@@ -19,35 +20,49 @@ int main()
 
     Scene scene;
 
-    Sphere smallSphere(Vector3(0, 0, 0), 10);
+    SphereBuilder sphereBuilder;
 
-    Sphere leftSphere(Vector3(-1000, 0, 0), 940, Vector3(0, 1, 1));
-    Sphere rightSphere(Vector3(1000, 0, 0), 940, Vector3(1, 1, 0));
-    Sphere upSphere(Vector3(0, 1000, 0), 940, Vector3(1, 0, 0));
-    Sphere downSphere(Vector3(0, -1000, 0), 990, Vector3(0, 0, 1));
-    Sphere frontSphere(Vector3(0, 0, 1000), 940, Vector3(0, 1, 0));
-    Sphere backSphere(Vector3(0, 0, -1000), 940, Vector3(1, 0, 1));
+    Sphere mirrorSphere = sphereBuilder.setCenter(Vector3(-25, 0, 0)).setRadius(10).setMirror(true).build();
+    sphereBuilder.reset();
+    Sphere solidSphere = sphereBuilder.setCenter(Vector3(0, 0, 0)).setRadius(10).setColor(Vector3(1, 0, 0)).build();
+    sphereBuilder.reset();
+    Sphere transparentSphere =
+        sphereBuilder.setCenter(Vector3(25, 0, 0)).setRadius(10).setTransparent(true).setRefractiveIndex(1.5).build();
+    sphereBuilder.reset();
 
-    scene.addIntersectableObject(smallSphere);
-
-    scene.addIntersectableObject(leftSphere);
-    scene.addIntersectableObject(rightSphere);
-    scene.addIntersectableObject(upSphere);
-    scene.addIntersectableObject(downSphere);
-    scene.addIntersectableObject(frontSphere);
-    scene.addIntersectableObject(backSphere);
+    Sphere leftSphere = sphereBuilder.setCenter(Vector3(-1000, 0, 0)).setRadius(940).setColor(Vector3(0, 1, 1)).build();
+    sphereBuilder.reset();
+    Sphere rightSphere = sphereBuilder.setCenter(Vector3(1000, 0, 0)).setRadius(940).setColor(Vector3(1, 1, 0)).build();
+    sphereBuilder.reset();
+    Sphere upSphere = sphereBuilder.setCenter(Vector3(0, 1000, 0)).setRadius(940).setColor(Vector3(1, 0, 0)).build();
+    sphereBuilder.reset();
+    Sphere downSphere = sphereBuilder.setCenter(Vector3(0, -1000, 0)).setRadius(990).setColor(Vector3(0, 0, 1)).build();
+    sphereBuilder.reset();
+    Sphere frontSphere = sphereBuilder.setCenter(Vector3(0, 0, 1000)).setRadius(940).setColor(Vector3(0, 1, 0)).build();
+    sphereBuilder.reset();
+    Sphere backSphere = sphereBuilder.setCenter(Vector3(0, 0, -1000)).setRadius(940).setColor(Vector3(1, 0, 1)).build();
+    sphereBuilder.reset();
 
     constexpr double lightSourceIntensity = 5E9;
 
     LightSource lightSource(Vector3(-10, 20, 40), lightSourceIntensity);
-    scene.setLightSource(lightSource);
+
+    scene.addIntersectableObject(solidSphere)
+        .addIntersectableObject(transparentSphere)
+        .addIntersectableObject(mirrorSphere)
+        .addIntersectableObject(leftSphere)
+        .addIntersectableObject(rightSphere)
+        .addIntersectableObject(upSphere)
+        .addIntersectableObject(downSphere)
+        .addIntersectableObject(frontSphere)
+        .addIntersectableObject(backSphere)
+        .addLightSource(lightSource);
 
     constexpr double cameraFov = 75 * M_PI / 180.;
 
     Camera camera(Vector3(0, 0, 55), cameraFov);
-    image.setCamera(camera);
 
-    image.setScene(scene);
+    image.setCamera(camera).setScene(scene);
 
     image.draw();
     image.save("image.png");

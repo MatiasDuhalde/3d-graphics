@@ -11,9 +11,18 @@ class LightSource
 
   public:
     LightSource(const Vector3 &position, const double intensity);
+
     const Vector3 &getPosition() const;
+    const LightSource &setPosition(const Vector3 &position);
+
     const double getIntensity() const;
-    void setPosition(const Vector3 &position);
-    void setIntensity(const double intensity);
+
+    /**
+     * @brief Set the intensity value
+     *
+     * @param intensity Light luminosity in watts
+     */
+    const LightSource &setIntensity(const double intensity);
+
     friend std::ostream &operator<<(std::ostream &os, const LightSource &lightSource);
 };

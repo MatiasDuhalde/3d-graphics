@@ -1,13 +1,6 @@
 #include "../../include/utils/vector3.h"
 #include <cmath>
 
-Vector3::Vector3(double x, double y, double z)
-{
-    coord[0] = x;
-    coord[1] = y;
-    coord[2] = z;
-}
-
 const double Vector3::getX() const
 {
     return coord[0];
@@ -56,7 +49,6 @@ Vector3 Vector3::operator+=(const Vector3 &other)
     return *this;
 }
 
-// dot product
 const double Vector3::dot(const Vector3 &other) const
 {
     return coord[0] * other[0] + coord[1] * other[1] + coord[2] * other[2];

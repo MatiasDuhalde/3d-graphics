@@ -2,68 +2,123 @@
 #include "../../include/core/intersection.h"
 #include <cmath>
 
-Intersection::Intersection()
-    : hit(false), point(), normal(), distance(INFINITY), albedo(), reflected(false), reflectedRay()
-{
-}
-
-Intersection::Intersection(const bool hit, const Vector3 &point, const Vector3 &normal, const double distance,
-                           const Ray &reflectedRay)
-    : hit(hit), point(point), normal(normal), distance(distance), albedo(), reflected(true), reflectedRay(reflectedRay)
-{
-}
-
-Intersection::Intersection(const bool hit, const Vector3 &point, const Vector3 &normal, const double distance,
-                           const Vector3 &albedo)
-    : hit(hit), point(point), normal(normal), distance(distance), albedo(albedo), reflected(false), reflectedRay()
-{
-}
-
 const bool Intersection::isHit() const
 {
-    return this->hit;
+    return hit;
+}
+
+const Intersection &Intersection::setHit(const bool hit)
+{
+    this->hit = hit;
+    return *this;
 }
 
 const Vector3 &Intersection::getPoint() const
 {
-    if (!this->point.has_value())
+    if (!point.has_value())
     {
-        throw UnsetIntersectionPointException(*this);
+        throw Exception("Point is not set");
     }
-    return this->point.value();
+    return point.value();
+}
+
+const Intersection &Intersection::setPoint(const Vector3 &point)
+{
+    this->point = point;
+    return *this;
 }
 
 const Vector3 &Intersection::getNormal() const
 {
-    if (!this->normal.has_value())
+    if (!normal.has_value())
     {
-        throw UnsetIntersectionNormalException(*this);
+        throw Exception("Normal is not set");
     }
-    return this->normal.value();
+    return normal.value();
+}
+
+const Intersection &Intersection::setNormal(const Vector3 &normal)
+{
+    this->normal = normal;
+    return *this;
 }
 
 const double Intersection::getDistance() const
 {
-    return this->distance;
+    return distance;
+}
+
+const Intersection &Intersection::setDistance(const double distance)
+{
+    this->distance = distance;
+    return *this;
 }
 
 const Vector3 &Intersection::getAlbedo() const
 {
-    if (!this->albedo.has_value())
+    if (!albedo.has_value())
     {
-        throw UnsetIntersectionAlbedoException(*this);
+        throw Exception("Albedo is not set");
     }
-    return this->albedo.value();
+    return albedo.value();
+}
+
+const Intersection &Intersection::setAlbedo(const Vector3 &albedo)
+{
+    this->albedo = albedo;
+    return *this;
 }
 
 const bool Intersection::isReflected() const
 {
-    return this->reflected;
+    return reflected;
+}
+
+const Intersection &Intersection::setReflected(const bool reflected)
+{
+    this->reflected = reflected;
+    return *this;
 }
 
 const Ray &Intersection::getReflectedRay() const
 {
-    return this->reflectedRay.value();
+    if (!reflectedRay.has_value())
+    {
+        throw Exception("Reflected ray is not set");
+    }
+    return reflectedRay.value();
+}
+
+const Intersection &Intersection::setReflectedRay(const Ray &reflectedRay)
+{
+    this->reflectedRay = reflectedRay;
+    return *this;
+}
+
+const bool Intersection::isRefracted() const
+{
+    return refracted;
+}
+
+const Intersection &Intersection::setRefracted(const bool refracted)
+{
+    this->refracted = refracted;
+    return *this;
+}
+
+const Ray &Intersection::getRefractedRay() const
+{
+    if (!refractedRay.has_value())
+    {
+        throw Exception("Refracted ray is not set");
+    }
+    return refractedRay.value();
+}
+
+const Intersection &Intersection::setRefractedRay(const Ray &refractedRay)
+{
+    this->refractedRay = refractedRay;
+    return *this;
 }
 
 std::ostream &operator<<(std::ostream &os, const Intersection &intersection)
@@ -90,4 +145,13 @@ std::ostream &operator<<(std::ostream &os, const Intersection &intersection)
     os << ")";
 
     return os;
+}
+
+Intersection::Exception::Exception(const std::string &message) : message(message)
+{
+}
+
+const char *Intersection::Exception::what() const noexcept
+{
+    return message.c_str();
 }

@@ -1,40 +1,57 @@
 #include "../../include/core/sphere.h"
+#include "../../include/core/intersection_builder.h"
 #include "../../include/utils/constants.h"
 #include <cmath>
 #include <iostream>
 
-Sphere::Sphere(const Vector3 &center, const double radius) : center(center), radius(radius), albedo(), mirror(true)
-{
-}
-
-Sphere::Sphere(const Vector3 &center, const double radius, const Vector3 &albedo)
-    : center(center), radius(radius), albedo(albedo), mirror(false)
+Sphere::Sphere(const Vector3 &center, const double radius) : center(center), radius(radius)
 {
 }
 
 const Vector3 &Sphere::getCenter() const
 {
-    return this->center;
+    return center;
+}
+
+const Sphere &Sphere::setCenter(const Vector3 &center)
+{
+    this->center = center;
+    return *this;
 }
 
 const double Sphere::getRadius() const
 {
-    return this->radius;
+    return radius;
 }
 
-const bool Sphere::isMirror() const
-{
-    return this->mirror;
-}
-
-void Sphere::setCenter(const Vector3 &center)
-{
-    this->center = center;
-}
-
-void Sphere::setRadius(const double radius)
+const Sphere &Sphere::setRadius(const double radius)
 {
     this->radius = radius;
+    return *this;
+}
+
+const Sphere &Sphere::setColor(const Vector3 &color)
+{
+    this->color = color;
+    return *this;
+}
+
+const Sphere &Sphere::setMirror(const bool mirror)
+{
+    this->mirror = mirror;
+    return *this;
+}
+
+const Sphere &Sphere::setTransparent(const bool transparent)
+{
+    this->transparent = transparent;
+    return *this;
+}
+
+const Sphere &Sphere::setRefractiveIndex(const double refractiveIndex)
+{
+    this->refractiveIndex = refractiveIndex;
+    return *this;
 }
 
 const Intersection Sphere::intersect(const Ray &ray) const
@@ -42,11 +59,11 @@ const Intersection Sphere::intersect(const Ray &ray) const
     const Vector3 rayOrigin = ray.getOrigin();
     const Vector3 rayDirection = ray.getDirection();
 
-    const Vector3 centerToOrigin = rayOrigin - this->center;
+    const Vector3 centerToOrigin = rayOrigin - center;
 
     const double distanceDot = rayDirection.dot(centerToOrigin);
 
-    const double determinant = pow(distanceDot, 2) - centerToOrigin.norm2() + pow(this->radius, 2);
+    const double determinant = pow(distanceDot, 2) - centerToOrigin.norm2() + pow(radius, 2);
 
     if (determinant < 0)
     {
@@ -58,32 +75,67 @@ const Intersection Sphere::intersect(const Ray &ray) const
 
     if (t2 < 0)
     {
+        // Sphere is behind the ray
         return Intersection();
     }
 
-    double distance;
-
-    if (t1 >= 0)
-    {
-        distance = t1;
-    }
-    else
-    {
-        distance = t2;
-    }
+    double distance = t1 < 0 ? t2 : t1;
 
     const Vector3 intersectionPoint = rayOrigin + rayDirection * distance;
 
-    const Vector3 normal = (intersectionPoint - this->center).normalize();
+    const Vector3 normal = (intersectionPoint - center).normalize();
 
-    if (this->mirror)
+    IntersectionBuilder intersectionBuilder;
+
+    intersectionBuilder.setHit(true);
+    intersectionBuilder.setPoint(intersectionPoint);
+    intersectionBuilder.setNormal(normal);
+    intersectionBuilder.setDistance(distance);
+
+    if (mirror)
     {
-        const Vector3 reflectedDirection = rayDirection - normal * 2 * rayDirection.dot(normal);
-        const Vector3 pointOverSurface = intersectionPoint + reflectedDirection * SURFACE_LIGHT_RAY_EPSILON;
-        const Ray reflectedRay(pointOverSurface, reflectedDirection);
+        intersectionBuilder.setReflected(true);
+        intersectionBuilder.setReflectedRay(ray.calculateReflectedRay(intersectionPoint, normal).addOffset());
+    }
+    else if (transparent)
+    {
 
-        return Intersection(true, intersectionPoint, normal, distance, reflectedRay);
+        // Analyze direction of normal compared to the incident ray
+        int direction = normal.dot(rayDirection) > 0 ? 1 : -1;
+        // FIXME: Here we assume that the ray is exiting into the air
+        double n2 = normal.dot(rayDirection) > 0 ? 1 : refractiveIndex;
+
+        const double n = ray.getRefractiveIndex() / n2;
+        const double rayDotNormal = rayDirection.dot(normal);
+        const Vector3 refractedTangent = (rayDirection - normal * rayDotNormal) * n;
+        const double cosIncident = rayDirection.dot(normal);
+        const double sin2Transmitted = n * n * (1.0 - cosIncident * cosIncident);
+
+        if (sin2Transmitted > 1.0)
+        {
+            // Total internal reflection
+            intersectionBuilder.setReflected(true);
+            intersectionBuilder.setReflectedRay(ray.calculateReflectedRay(intersectionPoint, normal).addOffset());
+        }
+        else
+        {
+            const double cosTransmitted = sqrt(1.0 - sin2Transmitted);
+
+            const Vector3 refractedNormal = normal * direction * cosTransmitted;
+
+            const Vector3 refractedDirection = (refractedTangent + refractedNormal).normalize();
+
+            Ray refractedRay(intersectionPoint, refractedDirection, n2);
+            refractedRay.addOffset();
+
+            intersectionBuilder.setRefracted(true);
+            intersectionBuilder.setRefractedRay(refractedRay);
+        }
+    }
+    else
+    {
+        intersectionBuilder.setAlbedo(color);
     }
 
-    return Intersection(true, intersectionPoint, normal, distance, albedo.value());
+    return intersectionBuilder.build();
 }

@@ -1,17 +1,30 @@
 #include "../../include/core/ray.h"
-
-Ray::Ray(const Vector3 &origin, const Vector3 &direction) : origin(origin), direction(direction)
-{
-}
+#include "../../include/utils/constants.h"
 
 const Vector3 &Ray::getOrigin() const
 {
-    return this->origin;
+    return origin;
 }
 
 const Vector3 &Ray::getDirection() const
 {
-    return this->direction;
+    return direction;
+}
+
+const double Ray::getRefractiveIndex() const
+{
+    return refractiveIndex;
+}
+
+Ray Ray::calculateReflectedRay(const Vector3 &intersectionPoint, const Vector3 &normal) const
+{
+    return Ray(intersectionPoint, direction - normal * 2 * direction.dot(normal), refractiveIndex);
+}
+
+Ray &Ray::addOffset()
+{
+    origin += direction * RAY_OFFSET_EPSILON;
+    return *this;
 }
 
 std::ostream &operator<<(std::ostream &os, const Ray &ray)

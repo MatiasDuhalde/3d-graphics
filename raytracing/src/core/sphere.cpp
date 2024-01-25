@@ -125,15 +125,18 @@ const Intersection Sphere::intersect(const Ray &ray) const
 
             const Vector3 refractedDirection = (refractedTangent + refractedNormal).normalize();
 
-            Ray refractedRay(intersectionPoint, refractedDirection, n2);
-            refractedRay.addOffset();
+            const Ray refractedRay = Ray(intersectionPoint, refractedDirection, n2).addOffset();
+
+            const Ray reflectedRay = ray.calculateReflectedRay(intersectionPoint, normal).addOffset();
 
             intersectionBuilder.setRefracted(true);
             intersectionBuilder.setRefractedRay(refractedRay);
+            intersectionBuilder.setReflectedRay(reflectedRay);
         }
     }
     else
     {
+        intersectionBuilder.setOpaque(true);
         intersectionBuilder.setAlbedo(color);
     }
 

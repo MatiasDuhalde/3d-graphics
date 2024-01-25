@@ -7,6 +7,7 @@ class IntersectionBuilder
     std::optional<Vector3> point = Intersection::Defaults::POINT;
     std::optional<Vector3> normal = Intersection::Defaults::NORMAL;
     double distance = Intersection::Defaults::DISTANCE;
+    bool opaque = Intersection::Defaults::OPAQUE;
     std::optional<Vector3> albedo = Intersection::Defaults::ALBEDO;
     bool reflected = Intersection::Defaults::REFLECTED;
     std::optional<Ray> reflectedRay = Intersection::Defaults::REFLECTED_RAY;
@@ -18,6 +19,7 @@ class IntersectionBuilder
     IntersectionBuilder &setPoint(const Vector3 &point);
     IntersectionBuilder &setNormal(const Vector3 &normal);
     IntersectionBuilder &setDistance(double distance);
+    IntersectionBuilder &setOpaque(bool opaque);
     IntersectionBuilder &setAlbedo(const Vector3 &albedo);
     IntersectionBuilder &setReflected(bool reflected);
     IntersectionBuilder &setReflectedRay(const Ray &reflectedRay);

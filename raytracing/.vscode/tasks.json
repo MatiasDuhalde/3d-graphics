@@ -2,10 +2,20 @@
   "tasks": [
     {
       "type": "cppbuild",
-      "label": "Build app",
+      "label": "Build app (clang/LLVM)",
       "command": "clang++",
+      "detail": "Build the optimized engine",
       "args": ["-fcolor-diagnostics", "-g", "main.cpp", "src/**/*.cpp", "-o", "main"],
       "problemMatcher": ["$gcc"],
+      "hide": false,
+      "isBackground": false,
+      "icon": {
+        "color": "terminal.ansiWhite",
+        "id": "wrench"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
       "group": {
         "kind": "build",
         "isDefault": true

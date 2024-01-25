@@ -57,7 +57,7 @@ void Image::draw() const
 
 void Image::renderPixel(const int i, const int j, const Intersection &intersection) const
 {
-    const Vector3 lambertianShading = scene->calculateLambertianShading(intersection);
+    const Vector3 lambertianShading = scene->calculateColor(intersection);
 
     image[(i * width + j) * 3 + 0] = std::min(255., std::max(0., pow(lambertianShading[0], GAMMA_CORRECTION))); // RED
     image[(i * width + j) * 3 + 1] = std::min(255., std::max(0., pow(lambertianShading[1], GAMMA_CORRECTION))); // GREEN

@@ -54,6 +54,17 @@ const Intersection &Intersection::setDistance(const double distance)
     return *this;
 }
 
+const bool Intersection::isOpaque() const
+{
+    return opaque;
+}
+
+const Intersection &Intersection::setOpaque(const bool opaque)
+{
+    this->opaque = opaque;
+    return *this;
+}
+
 const Vector3 &Intersection::getAlbedo() const
 {
     if (!albedo.has_value())

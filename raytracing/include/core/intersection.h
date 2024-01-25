@@ -14,6 +14,7 @@ class Intersection
     std::optional<Vector3> point = Defaults::POINT;
     std::optional<Vector3> normal = Defaults::NORMAL;
     double distance = Defaults::DISTANCE;
+    bool opaque = Defaults::OPAQUE;
     std::optional<Vector3> albedo = Defaults::ALBEDO;
     bool reflected = Defaults::REFLECTED;
     std::optional<Ray> reflectedRay = Defaults::REFLECTED_RAY;
@@ -27,6 +28,7 @@ class Intersection
         static constexpr std::optional<Vector3> POINT = std::nullopt;
         static constexpr std::optional<Vector3> NORMAL = std::nullopt;
         static constexpr double DISTANCE = INFINITY;
+        static constexpr bool OPAQUE = false;
         static constexpr std::optional<Vector3> ALBEDO = std::nullopt;
         static constexpr bool REFLECTED = false;
         static constexpr std::optional<Ray> REFLECTED_RAY = std::nullopt;
@@ -42,6 +44,8 @@ class Intersection
     const Intersection &setNormal(const Vector3 &normal);
     const double getDistance() const;
     const Intersection &setDistance(const double distance);
+    const bool isOpaque() const;
+    const Intersection &setOpaque(const bool opaque);
     const Vector3 &getAlbedo() const;
     const Intersection &setAlbedo(const Vector3 &albedo);
     const bool isReflected() const;

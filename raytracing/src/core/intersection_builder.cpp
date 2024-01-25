@@ -24,6 +24,12 @@ IntersectionBuilder &IntersectionBuilder::setDistance(double distance)
     return *this;
 }
 
+IntersectionBuilder &IntersectionBuilder::setOpaque(bool opaque)
+{
+    this->opaque = opaque;
+    return *this;
+}
+
 IntersectionBuilder &IntersectionBuilder::setAlbedo(const Vector3 &albedo)
 {
     this->albedo = albedo;
@@ -59,27 +65,18 @@ Intersection IntersectionBuilder::build() const
     Intersection intersection;
     intersection.setHit(hit);
     if (point.has_value())
-    {
         intersection.setPoint(point.value());
-    }
     if (normal.has_value())
-    {
         intersection.setNormal(normal.value());
-    }
     intersection.setDistance(distance);
+    intersection.setOpaque(opaque);
     if (albedo.has_value())
-    {
         intersection.setAlbedo(albedo.value());
-    }
     intersection.setReflected(reflected);
     if (reflectedRay.has_value())
-    {
         intersection.setReflectedRay(reflectedRay.value());
-    }
     intersection.setRefracted(refracted);
     if (refractedRay.has_value())
-    {
         intersection.setRefractedRay(refractedRay.value());
-    }
     return intersection;
 }

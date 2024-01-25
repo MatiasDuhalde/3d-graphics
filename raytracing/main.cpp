@@ -2,14 +2,13 @@
 #include <cmath>
 #include <vector>
 
-#include "include/utils/vector3.h"
-#include "include/view/camera.h"
-#include "include/view/image.h"
-
 #include "include/core/light_source.h"
 #include "include/core/scene.h"
 #include "include/core/sphere.h"
 #include "include/core/sphere_builder.h"
+#include "include/utils/vector3.h"
+#include "include/view/camera.h"
+#include "include/view/image.h"
 
 int main()
 {

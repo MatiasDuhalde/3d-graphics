@@ -14,6 +14,11 @@ class Scene
     std::vector<IntersectableObject *> intersectableObjects;
     std::vector<LightSource *> lightSources;
 
+    const bool lightSourceReachesPoint(const LightSource &lightSource, const Vector3 &point) const;
+    const Vector3 calculateLambertianShading(const LightSource &lightSource,
+                                             const Intersection &diffuseIntersection) const;
+    const Vector3 calculateColorRecursive(const Intersection &intersection, int depth) const;
+
   public:
     Scene();
 
@@ -34,5 +39,5 @@ class Scene
      * @param intersection
      * @return const Vector3 The shading of the intersection
      */
-    const Vector3 calculateLambertianShading(const Intersection &intersection) const;
+    const Vector3 calculateColor(const Intersection &intersection) const;
 };

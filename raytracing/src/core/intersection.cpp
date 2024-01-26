@@ -132,6 +132,17 @@ const Intersection &Intersection::setRefractedRay(const Ray &refractedRay)
     return *this;
 }
 
+const double Intersection::getReflectionCoefficient() const
+{
+    const Ray &reflectedRay = getReflectedRay();
+    const Ray &refractedRay = getRefractedRay();
+
+    const double n1 = reflectedRay.getRefractiveIndex();
+    const double n2 = refractedRay.getRefractiveIndex();
+
+    return pow((n1 - n2) / (n1 + n2), 2);
+}
+
 std::ostream &operator<<(std::ostream &os, const Intersection &intersection)
 {
     os << "Intersection(hit: " << intersection.hit;

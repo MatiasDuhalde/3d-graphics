@@ -6,8 +6,7 @@
 
 std::random_device rd;
 std::default_random_engine generator(rd());
-std::uniform_real_distribution<const double> randomDistribution =
-    std::uniform_real_distribution<const double>(0.0, 1.0);
+std::uniform_real_distribution<double> randomDistribution = std::uniform_real_distribution<double>(0.0, 1.0);
 
 Scene::Scene() : intersectableObjects(std::vector<IntersectableObject *>()), lightSources(std::vector<LightSource *>())
 {
@@ -79,7 +78,7 @@ const Vector3 Scene::calculateLambertianShading(const LightSource &lightSource,
     return intersectionAlbedo * k;
 }
 
-const Vector3 Scene::calculateColorRecursive(const Intersection &intersection, int depth) const
+const Vector3 Scene::calculateColorRecursive(const Intersection &intersection, int depth, bool refracting = false) const
 {
     if (depth > MAX_RECURSION_DEPTH || !intersection.isHit())
     {
@@ -105,9 +104,31 @@ const Vector3 Scene::calculateColorRecursive(const Intersection &intersection, i
 
     if (intersection.isRefracted())
     {
-        const Ray refractedRay = intersection.getRefractedRay();
-        const Intersection refractedIntersection = intersect(refractedRay);
-        return calculateColorRecursive(refractedIntersection, depth + 1);
+        int repetitions = REFRACTION_RAYS;
+        if (refracting)
+        {
+            repetitions = 1;
+        }
+
+        double reflectionCoefficient = intersection.getReflectionCoefficient();
+
+        Vector3 averageVector = Vector3(0., 0., 0.);
+        for (int i = 0; i < repetitions; i++)
+        {
+            if (randomDistribution(generator) < reflectionCoefficient)
+            {
+                const Ray reflectedRay = intersection.getReflectedRay();
+                const Intersection reflectedIntersection = intersect(reflectedRay);
+                averageVector += calculateColorRecursive(reflectedIntersection, depth + 1, true);
+            }
+            else
+            {
+                const Ray refractedRay = intersection.getRefractedRay();
+                const Intersection refractedIntersection = intersect(refractedRay);
+                averageVector += calculateColorRecursive(refractedIntersection, depth + 1, true);
+            }
+        }
+        return averageVector / repetitions;
     }
 
     if (intersection.isHit())

@@ -56,6 +56,7 @@ class Intersection
     const Intersection &setRefracted(const bool refracted);
     const Ray &getRefractedRay() const;
     const Intersection &setRefractedRay(const Ray &refractedRay);
+    const double getReflectionCoefficient() const;
 
     friend std::ostream &operator<<(std::ostream &os, const Intersection &intersection);
 

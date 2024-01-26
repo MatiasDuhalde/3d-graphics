@@ -17,7 +17,7 @@ class Scene
     const bool lightSourceReachesPoint(const LightSource &lightSource, const Vector3 &point) const;
     const Vector3 calculateLambertianShading(const LightSource &lightSource,
                                              const Intersection &diffuseIntersection) const;
-    const Vector3 calculateColorRecursive(const Intersection &intersection, int depth) const;
+    const Vector3 calculateColorRecursive(const Intersection &intersection, int depth, bool refracting) const;
 
   public:
     Scene();

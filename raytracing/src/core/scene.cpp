@@ -131,9 +131,6 @@ const Vector3 Scene::calculateColorRecursive(const Intersection &intersection, i
         return averageVector / repetitions;
     }
 
-    if (intersection.isHit())
-        const int i = 123;
-
     return Vector3(0., 0., 0.);
 }
 

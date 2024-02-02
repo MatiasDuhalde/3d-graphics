@@ -23,10 +23,10 @@ int main()
 
     Sphere mirrorSphere = sphereBuilder.setCenter(Vector3(-25, 0, 0)).setRadius(10).setMirror(true).build();
     sphereBuilder.reset();
-    Sphere solidSphere = sphereBuilder.setCenter(Vector3(0, 0, 0)).setRadius(10).setColor(Vector3(1, 0, 0)).build();
+    Sphere solidSphere = sphereBuilder.setCenter(Vector3(25, 0, 0)).setRadius(10).setColor(Vector3(1, 0, 0)).build();
     sphereBuilder.reset();
     Sphere transparentSphere =
-        sphereBuilder.setCenter(Vector3(25, 0, 0)).setRadius(10).setTransparent(true).setRefractiveIndex(1.5).build();
+        sphereBuilder.setCenter(Vector3(0, 0, 0)).setRadius(10).setTransparent(true).setRefractiveIndex(1.5).build();
     sphereBuilder.reset();
 
     Sphere leftSphere = sphereBuilder.setCenter(Vector3(-1000, 0, 0)).setRadius(940).setColor(Vector3(0, 1, 1)).build();

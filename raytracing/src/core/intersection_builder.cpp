@@ -36,6 +36,12 @@ IntersectionBuilder &IntersectionBuilder::setAlbedo(const Vector3 &albedo)
     return *this;
 }
 
+IntersectionBuilder &IntersectionBuilder::setSourceRay(const Ray &sourceRay)
+{
+    this->sourceRay = sourceRay;
+    return *this;
+}
+
 IntersectionBuilder &IntersectionBuilder::setReflected(bool reflected)
 {
     this->reflected = reflected;
@@ -72,6 +78,8 @@ Intersection IntersectionBuilder::build() const
     intersection.setOpaque(opaque);
     if (albedo.has_value())
         intersection.setAlbedo(albedo.value());
+    if (sourceRay.has_value())
+        intersection.setSourceRay(sourceRay.value());
     intersection.setReflected(reflected);
     if (reflectedRay.has_value())
         intersection.setReflectedRay(reflectedRay.value());

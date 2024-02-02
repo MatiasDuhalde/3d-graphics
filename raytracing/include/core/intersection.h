@@ -16,6 +16,7 @@ class Intersection
     double distance = Defaults::DISTANCE;
     bool opaque = Defaults::OPAQUE;
     std::optional<Vector3> albedo = Defaults::ALBEDO;
+    std::optional<Ray> sourceRay = Defaults::SOURCE_RAY;
     bool reflected = Defaults::REFLECTED;
     std::optional<Ray> reflectedRay = Defaults::REFLECTED_RAY;
     bool refracted = Defaults::REFRACTED;
@@ -30,6 +31,7 @@ class Intersection
         static constexpr double DISTANCE = INFINITY;
         static constexpr bool OPAQUE = false;
         static constexpr std::optional<Vector3> ALBEDO = std::nullopt;
+        static constexpr std::optional<Ray> SOURCE_RAY = std::nullopt;
         static constexpr bool REFLECTED = false;
         static constexpr std::optional<Ray> REFLECTED_RAY = std::nullopt;
         static constexpr bool REFRACTED = false;
@@ -48,6 +50,8 @@ class Intersection
     const Intersection &setOpaque(const bool opaque);
     const Vector3 &getAlbedo() const;
     const Intersection &setAlbedo(const Vector3 &albedo);
+    const Ray &getSourceRay() const;
+    const Intersection &setSourceRay(const Ray &sourceRay);
     const bool isReflected() const;
     const Intersection &setReflected(const bool reflected);
     const Ray &getReflectedRay() const;
@@ -57,6 +61,8 @@ class Intersection
     const Ray &getRefractedRay() const;
     const Intersection &setRefractedRay(const Ray &refractedRay);
     const double getReflectionCoefficient() const;
+
+    const Ray getRandomNormalHemisphereRay() const;
 
     friend std::ostream &operator<<(std::ostream &os, const Intersection &intersection);
 

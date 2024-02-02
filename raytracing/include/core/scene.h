@@ -1,8 +1,9 @@
 #pragma once
+#include <vector>
+
 #include "intersectable_object.h"
 #include "intersection.h"
 #include "light_source.h"
-#include <vector>
 
 /**
  * @brief Describes a scene with intersectable objects and light sources
@@ -17,7 +18,7 @@ class Scene
     const bool lightSourceReachesPoint(const LightSource &lightSource, const Vector3 &point) const;
     const Vector3 calculateLambertianShading(const LightSource &lightSource,
                                              const Intersection &diffuseIntersection) const;
-    const Vector3 calculateColorRecursive(const Intersection &intersection, int depth, bool refracting) const;
+    const Vector3 calculateColorRecursive(const Intersection &intersection, int depth, bool multiSampling) const;
 
   public:
     Scene();

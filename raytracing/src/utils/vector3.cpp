@@ -36,6 +36,11 @@ Vector3 Vector3::operator*(double a) const
     return Vector3(a * coord[0], a * coord[1], a * coord[2]);
 }
 
+Vector3 Vector3::operator*(const Vector3 &other) const
+{
+    return Vector3(coord[0] * other[0], coord[1] * other[1], coord[2] * other[2]);
+}
+
 Vector3 Vector3::operator/(double a) const
 {
     return Vector3(coord[0] / a, coord[1] / a, coord[2] / a);

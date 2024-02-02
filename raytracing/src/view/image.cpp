@@ -43,7 +43,7 @@ void Image::draw() const
         throw Exception("Scene is not set");
     }
 
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic, 1)
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)

@@ -20,6 +20,7 @@ class Vector3
     Vector3 operator+(const Vector3 &other) const;
     Vector3 operator-(const Vector3 &other) const;
     Vector3 operator*(double a) const;
+    Vector3 operator*(const Vector3 &other) const;
     Vector3 operator/(double a) const;
     Vector3 operator+=(const Vector3 &other);
 

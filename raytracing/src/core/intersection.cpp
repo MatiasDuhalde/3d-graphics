@@ -80,6 +80,21 @@ const Intersection &Intersection::setAlbedo(const Vector3 &albedo)
     return *this;
 }
 
+const Ray &Intersection::getSourceRay() const
+{
+    if (!sourceRay.has_value())
+    {
+        throw Exception("Source ray is not set");
+    }
+    return sourceRay.value();
+}
+
+const Intersection &Intersection::setSourceRay(const Ray &sourceRay)
+{
+    this->sourceRay = sourceRay;
+    return *this;
+}
+
 const bool Intersection::isReflected() const
 {
     return reflected;
@@ -141,6 +156,28 @@ const double Intersection::getReflectionCoefficient() const
     const double n2 = refractedRay.getRefractiveIndex();
 
     return pow((n1 - n2) / (n1 + n2), 2);
+}
+
+const Ray Intersection::getRandomNormalHemisphereRay() const
+{
+
+    const Vector3 &normal = getNormal();
+    const Vector3 &point = getPoint();
+    const Ray &sourceRay = getSourceRay();
+
+    // const double r1 = 2 * M_PI * randomDistribution(engine);
+    // const double r2 = randomDistribution(engine);
+    // const double r2s = sqrt(r2);
+
+    // Vector3 w = normal;
+    // Vector3 u = ((fabs(w.getX()) > 0.1 ? Vector3(0, 1, 0) : Vector3(1, 0, 0)).cross(w)).normalize();
+    // Vector3 v = w.cross(u);
+
+    // Vector3 d = (u * cos(r1) * r2s + v * sin(r1) * r2s + w * sqrt(1 - r2)).normalize();
+
+    const int orientation = normal.dot(sourceRay.getDirection()) > 0 ? 1 : -1;
+
+    return Ray(point, normal * orientation);
 }
 
 std::ostream &operator<<(std::ostream &os, const Intersection &intersection)

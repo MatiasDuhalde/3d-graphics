@@ -91,6 +91,7 @@ const Intersection Sphere::intersect(const Ray &ray) const
     intersectionBuilder.setPoint(intersectionPoint);
     intersectionBuilder.setNormal(normal);
     intersectionBuilder.setDistance(distance);
+    intersectionBuilder.setSourceRay(ray);
 
     if (mirror)
     {

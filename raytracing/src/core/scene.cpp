@@ -1,12 +1,8 @@
 #include <cmath>
-#include <random>
 
 #include "../../include/core/scene.h"
 #include "../../include/utils/constants.h"
-
-std::random_device rd;
-std::default_random_engine generator(rd());
-std::uniform_real_distribution<double> randomDistribution = std::uniform_real_distribution<double>(0.0, 1.0);
+#include "../../include/utils/random.h"
 
 Scene::Scene() : intersectableObjects(std::vector<IntersectableObject *>()), lightSources(std::vector<LightSource *>())
 {
@@ -78,7 +74,8 @@ const Vector3 Scene::calculateLambertianShading(const LightSource &lightSource,
     return intersectionAlbedo * k;
 }
 
-const Vector3 Scene::calculateColorRecursive(const Intersection &intersection, int depth, bool refracting = false) const
+const Vector3 Scene::calculateColorRecursive(const Intersection &intersection, int depth,
+                                             bool multiSampling = false) const
 {
     if (depth > MAX_RECURSION_DEPTH || !intersection.isHit())
     {
@@ -88,11 +85,30 @@ const Vector3 Scene::calculateColorRecursive(const Intersection &intersection, i
     if (intersection.isOpaque())
     {
         const LightSource lightSource = *lightSources[0];
-        if (!lightSourceReachesPoint(lightSource, intersection.getPoint()))
+        Vector3 directLighting(0., 0., 0.);
+        if (lightSourceReachesPoint(lightSource, intersection.getPoint()))
         {
-            return Vector3(0., 0., 0.);
+            directLighting = calculateLambertianShading(lightSource, intersection);
         }
-        return calculateLambertianShading(lightSource, intersection);
+
+        int repetitions = MULTI_SAMPLING_RAYS;
+        if (multiSampling)
+        {
+            repetitions = 1;
+        }
+
+        Vector3 aggregateVector = Vector3(0., 0., 0.);
+
+        // for (int i = 0; i < repetitions; i++)
+        // {
+        //     const Ray randomRay = intersection.getRandomNormalHemisphereRay();
+        //     const Intersection randomIntersection = intersect(randomRay);
+        //     aggregateVector += calculateColorRecursive(randomIntersection, depth + 1);
+        // }
+
+        const Vector3 indirectLighting = intersection.getAlbedo() * (aggregateVector / repetitions);
+
+        return directLighting + indirectLighting;
     }
 
     if (intersection.isReflected())
@@ -104,31 +120,31 @@ const Vector3 Scene::calculateColorRecursive(const Intersection &intersection, i
 
     if (intersection.isRefracted())
     {
-        int repetitions = REFRACTION_RAYS;
-        if (refracting)
+        int repetitions = MULTI_SAMPLING_RAYS;
+        if (multiSampling)
         {
             repetitions = 1;
         }
 
         double reflectionCoefficient = intersection.getReflectionCoefficient();
 
-        Vector3 averageVector = Vector3(0., 0., 0.);
+        Vector3 aggregateVector = Vector3(0., 0., 0.);
         for (int i = 0; i < repetitions; i++)
         {
-            if (randomDistribution(generator) < reflectionCoefficient)
+            if (randomDistribution(randomEngine) < reflectionCoefficient)
             {
                 const Ray reflectedRay = intersection.getReflectedRay();
                 const Intersection reflectedIntersection = intersect(reflectedRay);
-                averageVector += calculateColorRecursive(reflectedIntersection, depth + 1, true);
+                aggregateVector += calculateColorRecursive(reflectedIntersection, depth + 1, true);
             }
             else
             {
                 const Ray refractedRay = intersection.getRefractedRay();
                 const Intersection refractedIntersection = intersect(refractedRay);
-                averageVector += calculateColorRecursive(refractedIntersection, depth + 1, true);
+                aggregateVector += calculateColorRecursive(refractedIntersection, depth + 1, true);
             }
         }
-        return averageVector / repetitions;
+        return aggregateVector / repetitions;
     }
 
     return Vector3(0., 0., 0.);

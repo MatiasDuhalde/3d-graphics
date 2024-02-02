@@ -26,6 +26,8 @@ class Vector3
 
     const double dot(const Vector3 &other) const;
 
+    const Vector3 cross(const Vector3 &other) const;
+
     const double norm() const;
 
     const double norm2() const;

@@ -1,6 +1,9 @@
 
-#include "../../include/core/intersection.h"
 #include <cmath>
+#include <cstdlib>
+
+#include "../../include/core/intersection.h"
+#include "../../include/utils/random.h"
 
 const bool Intersection::isHit() const
 {
@@ -164,20 +167,21 @@ const Ray Intersection::getRandomNormalHemisphereRay() const
     const Vector3 &normal = getNormal();
     const Vector3 &point = getPoint();
     const Ray &sourceRay = getSourceRay();
+    const int orientation = normal.dot(sourceRay.getDirection()) > 0 ? -1 : 1;
 
-    // const double r1 = 2 * M_PI * randomDistribution(engine);
-    // const double r2 = randomDistribution(engine);
-    // const double r2s = sqrt(r2);
+    const double r1 = randomDistribution(randomEngine);
+    const double r2 = randomDistribution(randomEngine);
 
-    // Vector3 w = normal;
-    // Vector3 u = ((fabs(w.getX()) > 0.1 ? Vector3(0, 1, 0) : Vector3(1, 0, 0)).cross(w)).normalize();
-    // Vector3 v = w.cross(u);
+    const double x = cos(2 * M_PI * r1) * sqrt(1 - r2);
+    const double y = sin(2 * M_PI * r1) * sqrt(1 - r2);
+    const double z = sqrt(r2);
 
-    // Vector3 d = (u * cos(r1) * r2s + v * sin(r1) * r2s + w * sqrt(1 - r2)).normalize();
+    const Vector3 t1 = normal.cross(Vector3(0, 0, 1)).normalize();
+    const Vector3 t2 = normal.cross(t1).normalize();
 
-    const int orientation = normal.dot(sourceRay.getDirection()) > 0 ? 1 : -1;
+    const Vector3 randomDirection = (t1 * x + t2 * y + normal * z).normalize();
 
-    return Ray(point, normal * orientation);
+    return Ray(point, randomDirection * orientation).addOffset();
 }
 
 std::ostream &operator<<(std::ostream &os, const Intersection &intersection)

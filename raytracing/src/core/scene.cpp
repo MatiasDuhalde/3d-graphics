@@ -99,12 +99,12 @@ const Vector3 Scene::calculateColorRecursive(const Intersection &intersection, i
 
         Vector3 aggregateVector = Vector3(0., 0., 0.);
 
-        // for (int i = 0; i < repetitions; i++)
-        // {
-        //     const Ray randomRay = intersection.getRandomNormalHemisphereRay();
-        //     const Intersection randomIntersection = intersect(randomRay);
-        //     aggregateVector += calculateColorRecursive(randomIntersection, depth + 1);
-        // }
+        for (int i = 0; i < repetitions; i++)
+        {
+            const Ray randomRay = intersection.getRandomNormalHemisphereRay();
+            const Intersection randomIntersection = intersect(randomRay);
+            aggregateVector += calculateColorRecursive(randomIntersection, depth + 1, true);
+        }
 
         const Vector3 indirectLighting = intersection.getAlbedo() * (aggregateVector / repetitions);
 
@@ -115,7 +115,7 @@ const Vector3 Scene::calculateColorRecursive(const Intersection &intersection, i
     {
         const Ray reflectedRay = intersection.getReflectedRay();
         const Intersection reflectedIntersection = intersect(reflectedRay);
-        return calculateColorRecursive(reflectedIntersection, depth + 1);
+        return calculateColorRecursive(reflectedIntersection, depth + 1, multiSampling);
     }
 
     if (intersection.isRefracted())

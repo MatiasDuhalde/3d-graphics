@@ -59,6 +59,12 @@ const double Vector3::dot(const Vector3 &other) const
     return coord[0] * other[0] + coord[1] * other[1] + coord[2] * other[2];
 }
 
+const Vector3 Vector3::cross(const Vector3 &other) const
+{
+    return Vector3(coord[1] * other[2] - coord[2] * other[1], coord[2] * other[0] - coord[0] * other[2],
+                   coord[0] * other[1] - coord[1] * other[0]);
+}
+
 const double Vector3::norm() const
 {
     return sqrt(norm2());

@@ -140,11 +140,8 @@ const Intersection &Intersection::setRefractedRay(const Ray &refractedRay)
 
 const double Intersection::getReflectionCoefficient() const
 {
-    const Ray &reflectedRay = getReflectedRay();
-    const Ray &refractedRay = getRefractedRay();
-
-    const double n1 = reflectedRay.getRefractiveIndex();
-    const double n2 = refractedRay.getRefractiveIndex();
+    const double n1 = getReflectedRay().getRefractiveIndex();
+    const double n2 = getRefractedRay().getRefractiveIndex();
 
     return pow((n1 - n2) / (n1 + n2), 2);
 }

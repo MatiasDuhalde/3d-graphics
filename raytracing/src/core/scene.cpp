@@ -78,59 +78,86 @@ const Vector3 Scene::calculateColorRecursive(const Intersection &intersection, i
         if (lightSourceReachesPoint(lightSource, intersection.getPoint()))
             directLighting = calculateLambertianShading(lightSource, intersection);
 
-        int repetitions = MULTI_SAMPLING_RAYS;
-        if (multiSampling)
-            repetitions = 1;
-
-        Vector3 aggregateVector = Vector3(0., 0., 0.);
-
-        for (int i = 0; i < repetitions; i++)
+        if (ENABLE_INDIRECT_LIGHTING)
         {
-            const Ray randomRay = intersection.getRandomNormalHemisphereRay();
-            const Intersection randomIntersection = intersect(randomRay);
-            aggregateVector += calculateColorRecursive(randomIntersection, depth + 1, true);
+            const Vector3 indirectLighting = calculateIndirectLightingColor(intersection, depth, multiSampling);
+            return directLighting + indirectLighting;
         }
 
-        const Vector3 indirectLighting = intersection.getAlbedo() * (aggregateVector / repetitions);
-
-        return directLighting + indirectLighting;
+        return directLighting;
     }
 
     if (intersection.isReflected())
     {
-        const Ray reflectedRay = intersection.getReflectedRay();
-        const Intersection reflectedIntersection = intersect(reflectedRay);
+        const Intersection reflectedIntersection = calculateReflectedIntersection(intersection);
         return calculateColorRecursive(reflectedIntersection, depth + 1, multiSampling);
     }
 
     if (intersection.isRefracted())
     {
-        int repetitions = MULTI_SAMPLING_RAYS;
-        if (multiSampling)
-            repetitions = 1;
+        if (ENABLE_FRESNEL)
+            return calculateFresnelColor(intersection, depth, multiSampling);
 
-        double reflectionCoefficient = intersection.getReflectionCoefficient();
-
-        Vector3 aggregateVector = Vector3(0., 0., 0.);
-        for (int i = 0; i < repetitions; i++)
-        {
-            if (randomDistribution(randomEngine) < reflectionCoefficient)
-            {
-                const Ray reflectedRay = intersection.getReflectedRay();
-                const Intersection reflectedIntersection = intersect(reflectedRay);
-                aggregateVector += calculateColorRecursive(reflectedIntersection, depth + 1, true);
-            }
-            else
-            {
-                const Ray refractedRay = intersection.getRefractedRay();
-                const Intersection refractedIntersection = intersect(refractedRay);
-                aggregateVector += calculateColorRecursive(refractedIntersection, depth + 1, true);
-            }
-        }
-        return aggregateVector / repetitions;
+        const Intersection refractedIntersection = calculateRefractedIntersection(intersection);
+        return calculateColorRecursive(refractedIntersection, depth + 1, multiSampling);
     }
 
     return Vector3(0., 0., 0.);
+}
+
+const Intersection Scene::calculateReflectedIntersection(const Intersection &intersection) const
+{
+    const Ray reflectedRay = intersection.getReflectedRay();
+    return intersect(reflectedRay);
+}
+
+const Intersection Scene::calculateRefractedIntersection(const Intersection &intersection) const
+{
+    const Ray refractedRay = intersection.getRefractedRay();
+    return intersect(refractedRay);
+}
+
+const Vector3 Scene::calculateFresnelColor(const Intersection &intersection, const int depth,
+                                           const bool multiSampling) const
+{
+    int repetitions = multiSampling ? 1 : FRESNEL_RAYS;
+
+    double reflectionCoefficient = intersection.getReflectionCoefficient();
+
+    Vector3 aggregateVector = Vector3(0., 0., 0.);
+    for (int i = 0; i < repetitions; i++)
+    {
+        if (randomDistribution(randomEngine) < reflectionCoefficient)
+        {
+            const Intersection reflectedIntersection = calculateReflectedIntersection(intersection);
+            aggregateVector += calculateColorRecursive(reflectedIntersection, depth + 1, true);
+        }
+        else
+        {
+            const Intersection refractedIntersection = calculateRefractedIntersection(intersection);
+            aggregateVector += calculateColorRecursive(refractedIntersection, depth + 1, true);
+        }
+    }
+    return aggregateVector / repetitions;
+}
+
+const Vector3 Scene::calculateIndirectLightingColor(const Intersection &intersection, const int depth,
+                                                    const bool multiSampling) const
+{
+    int repetitions = multiSampling ? 1 : INDIRECT_LIGHTING_RAYS;
+
+    Vector3 aggregateVector = Vector3(0., 0., 0.);
+
+    for (int i = 0; i < repetitions; i++)
+    {
+        const Ray randomRay = intersection.getRandomNormalHemisphereRay();
+        const Intersection randomIntersection = intersect(randomRay);
+        aggregateVector += calculateColorRecursive(randomIntersection, depth + 1, true);
+    }
+
+    const Vector3 indirectLighting = intersection.getAlbedo() * (aggregateVector / repetitions);
+
+    return indirectLighting;
 }
 
 const Vector3 Scene::calculateColor(const Intersection &intersection) const

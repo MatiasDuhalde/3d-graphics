@@ -19,6 +19,12 @@ class Scene
     const Vector3 calculateLambertianShading(const LightSource &lightSource,
                                              const Intersection &diffuseIntersection) const;
     const Vector3 calculateColorRecursive(const Intersection &intersection, int depth, bool multiSampling) const;
+    const Intersection calculateReflectedIntersection(const Intersection &intersection) const;
+    const Intersection calculateRefractedIntersection(const Intersection &intersection) const;
+    const Vector3 calculateFresnelColor(const Intersection &intersection, const int depth,
+                                        const bool multiSampling) const;
+    const Vector3 calculateIndirectLightingColor(const Intersection &intersection, const int depth,
+                                                 const bool multiSampling) const;
 
   public:
     Scene();

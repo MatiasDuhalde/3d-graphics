@@ -28,9 +28,7 @@ const Intersection Scene::intersect(const Ray &ray) const
     {
         Intersection currentIntersection = intersectableObject->intersect(ray);
         if (currentIntersection.getDistance() < intersection.getDistance())
-        {
             intersection = currentIntersection;
-        }
     }
 
     return intersection;
@@ -43,19 +41,12 @@ const bool Scene::lightSourceReachesPoint(const LightSource &lightSource, const 
     const Vector3 lightDirection = (lightSourcePosition - point);
     const Vector3 normalizedLightDirection = lightDirection.normalize();
 
-    Ray rayToLightSource(point, normalizedLightDirection);
-    rayToLightSource.addOffset();
+    const Ray rayToLightSource = Ray(point, normalizedLightDirection).addOffset();
 
     const Intersection lightIntersection = intersect(rayToLightSource);
 
     if (lightIntersection.isHit())
-    {
-        const double lightSourceDistance = (lightSourcePosition - point).norm();
-        if (lightIntersection.getDistance() < lightSourceDistance)
-        {
-            return false;
-        }
-    }
+        return lightIntersection.getDistance() >= (lightSourcePosition - point).norm();
     return true;
 }
 
@@ -63,7 +54,7 @@ const Vector3 Scene::calculateLambertianShading(const LightSource &lightSource,
                                                 const Intersection &diffuseIntersection) const
 {
     const Vector3 lightDirection = lightSource.getPosition() - diffuseIntersection.getPoint();
-    double d2 = lightDirection.norm2();
+    const double d2 = lightDirection.norm2();
 
     const Vector3 intersectionNormal = diffuseIntersection.getNormal();
     const Vector3 intersectionAlbedo = diffuseIntersection.getAlbedo();
@@ -78,24 +69,18 @@ const Vector3 Scene::calculateColorRecursive(const Intersection &intersection, i
                                              bool multiSampling = false) const
 {
     if (depth > MAX_RECURSION_DEPTH || !intersection.isHit())
-    {
         return Vector3(0., 0., 0.);
-    }
 
     if (intersection.isOpaque())
     {
         const LightSource lightSource = *lightSources[0];
         Vector3 directLighting(0., 0., 0.);
         if (lightSourceReachesPoint(lightSource, intersection.getPoint()))
-        {
             directLighting = calculateLambertianShading(lightSource, intersection);
-        }
 
         int repetitions = MULTI_SAMPLING_RAYS;
         if (multiSampling)
-        {
             repetitions = 1;
-        }
 
         Vector3 aggregateVector = Vector3(0., 0., 0.);
 
@@ -122,9 +107,7 @@ const Vector3 Scene::calculateColorRecursive(const Intersection &intersection, i
     {
         int repetitions = MULTI_SAMPLING_RAYS;
         if (multiSampling)
-        {
             repetitions = 1;
-        }
 
         double reflectionCoefficient = intersection.getReflectionCoefficient();
 
@@ -153,9 +136,7 @@ const Vector3 Scene::calculateColorRecursive(const Intersection &intersection, i
 const Vector3 Scene::calculateColor(const Intersection &intersection) const
 {
     if (lightSources.empty() || !intersection.isHit())
-    {
         return Vector3(0., 0., 0.);
-    }
 
     return calculateColorRecursive(intersection, 0);
 }

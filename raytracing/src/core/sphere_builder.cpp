@@ -39,13 +39,9 @@ SphereBuilder &SphereBuilder::setRefractiveIndex(const double refractiveIndex)
 Sphere SphereBuilder::build()
 {
     if (!center.has_value())
-    {
         throw Exception("Center is not set");
-    }
     if (!radius.has_value())
-    {
         throw Exception("Radius is not set");
-    }
 
     Sphere sphere(center.value(), radius.value());
     sphere.setColor(color);

@@ -26,16 +26,16 @@ class Intersection
     struct Defaults
     {
         static constexpr bool HIT = false;
-        static constexpr std::optional<Vector3> POINT = std::nullopt;
-        static constexpr std::optional<Vector3> NORMAL = std::nullopt;
+        static constexpr std::optional<const Vector3> POINT = std::nullopt;
+        static constexpr std::optional<const Vector3> NORMAL = std::nullopt;
         static constexpr double DISTANCE = INFINITY;
         static constexpr bool OPAQUE = false;
-        static constexpr std::optional<Vector3> ALBEDO = std::nullopt;
-        static constexpr std::optional<Ray> SOURCE_RAY = std::nullopt;
+        static constexpr std::optional<const Vector3> ALBEDO = std::nullopt;
+        static constexpr std::optional<const Ray> SOURCE_RAY = std::nullopt;
         static constexpr bool REFLECTED = false;
-        static constexpr std::optional<Ray> REFLECTED_RAY = std::nullopt;
+        static constexpr std::optional<const Ray> REFLECTED_RAY = std::nullopt;
         static constexpr bool REFRACTED = false;
-        static constexpr std::optional<Ray> REFRACTED_RAY = std::nullopt;
+        static constexpr std::optional<const Ray> REFRACTED_RAY = std::nullopt;
     };
 
     const bool isHit() const;

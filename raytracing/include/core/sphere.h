@@ -1,9 +1,10 @@
 #pragma once
+#include <optional>
+
 #include "../utils/vector3.h"
 #include "intersectable_object.h"
 #include "intersection.h"
 #include "ray.h"
-#include <optional>
 
 class Sphere : public IntersectableObject
 {

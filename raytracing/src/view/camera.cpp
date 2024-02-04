@@ -1,6 +1,6 @@
 #include "../../include/view/camera.h"
 
-Camera::Camera(const Vector3 &origin, double fov) : origin(origin), fov(fov)
+Camera::Camera(const Vector3 &origin, const double fov) : origin(origin), fov(fov)
 {
 }
 

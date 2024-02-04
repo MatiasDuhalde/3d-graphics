@@ -19,9 +19,7 @@ const Intersection &Intersection::setHit(const bool hit)
 const Vector3 &Intersection::getPoint() const
 {
     if (!point.has_value())
-    {
         throw Exception("Point is not set");
-    }
     return point.value();
 }
 
@@ -34,9 +32,7 @@ const Intersection &Intersection::setPoint(const Vector3 &point)
 const Vector3 &Intersection::getNormal() const
 {
     if (!normal.has_value())
-    {
         throw Exception("Normal is not set");
-    }
     return normal.value();
 }
 
@@ -71,9 +67,7 @@ const Intersection &Intersection::setOpaque(const bool opaque)
 const Vector3 &Intersection::getAlbedo() const
 {
     if (!albedo.has_value())
-    {
         throw Exception("Albedo is not set");
-    }
     return albedo.value();
 }
 
@@ -86,9 +80,7 @@ const Intersection &Intersection::setAlbedo(const Vector3 &albedo)
 const Ray &Intersection::getSourceRay() const
 {
     if (!sourceRay.has_value())
-    {
         throw Exception("Source ray is not set");
-    }
     return sourceRay.value();
 }
 
@@ -112,9 +104,7 @@ const Intersection &Intersection::setReflected(const bool reflected)
 const Ray &Intersection::getReflectedRay() const
 {
     if (!reflectedRay.has_value())
-    {
         throw Exception("Reflected ray is not set");
-    }
     return reflectedRay.value();
 }
 
@@ -138,9 +128,7 @@ const Intersection &Intersection::setRefracted(const bool refracted)
 const Ray &Intersection::getRefractedRay() const
 {
     if (!refractedRay.has_value())
-    {
         throw Exception("Refracted ray is not set");
-    }
     return refractedRay.value();
 }
 
@@ -176,6 +164,7 @@ const Ray Intersection::getRandomNormalHemisphereRay() const
     const double y = sin(2 * M_PI * r1) * sqrt(1 - r2);
     const double z = sqrt(r2);
 
+    // FIXME: Edge case when normal is (0, 0, 1)
     const Vector3 t1 = normal.cross(Vector3(0, 0, 1)).normalize();
     const Vector3 t2 = normal.cross(t1).normalize();
 
@@ -188,23 +177,15 @@ std::ostream &operator<<(std::ostream &os, const Intersection &intersection)
 {
     os << "Intersection(hit: " << intersection.hit;
     if (intersection.point.has_value())
-    {
         os << ", point: " << intersection.point.value();
-    }
     if (intersection.normal.has_value())
-    {
         os << ", normal: " << intersection.normal.value();
-    }
     os << ", distance: " << intersection.distance;
     if (intersection.albedo.has_value())
-    {
         os << ", albedo: " << intersection.albedo.value();
-    }
     os << ", reflected: " << intersection.reflected;
     if (intersection.reflectedRay.has_value())
-    {
         os << ", reflectedRay: " << intersection.reflectedRay.value();
-    }
     os << ")";
 
     return os;

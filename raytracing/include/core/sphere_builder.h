@@ -1,6 +1,8 @@
+#pragma once
+#include <optional>
+
 #include "../utils/vector3.h"
 #include "sphere.h"
-#include <optional>
 
 class SphereBuilder
 {

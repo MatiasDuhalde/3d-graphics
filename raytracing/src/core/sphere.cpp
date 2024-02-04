@@ -66,18 +66,14 @@ const Intersection Sphere::intersect(const Ray &ray) const
     const double determinant = pow(distanceDot, 2) - centerToOrigin.norm2() + pow(radius, 2);
 
     if (determinant < 0)
-    {
         return Intersection();
-    }
 
     const double t1 = -distanceDot - sqrt(determinant);
     const double t2 = -distanceDot + sqrt(determinant);
 
+    // Sphere is behind the ray
     if (t2 < 0)
-    {
-        // Sphere is behind the ray
         return Intersection();
-    }
 
     double distance = t1 < 0 ? t2 : t1;
 

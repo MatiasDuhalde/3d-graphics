@@ -5,10 +5,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../libs/stb_image.h"
 
-#include "../../include/view/image.h"
-
 #include "../../include/utils/constants.h"
 #include "../../include/utils/vector3.h"
+#include "../../include/view/image.h"
 
 Image::Image(const int width, const int height) : width(width), height(height)
 {
@@ -35,21 +34,17 @@ Image &Image::setScene(Scene &scene)
 void Image::draw() const
 {
     if (camera == nullptr)
-    {
         throw Exception("Camera is not set");
-    }
     if (scene == nullptr)
-    {
         throw Exception("Scene is not set");
-    }
 
 #pragma omp parallel for schedule(dynamic, 1)
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
-            Ray ray = calculatePixelRay(i, j);
-            Intersection intersection = scene->intersect(ray);
+            const Ray ray = calculatePixelRay(i, j);
+            const Intersection intersection = scene->intersect(ray);
             renderPixel(i, j, intersection);
         }
     }
@@ -57,14 +52,14 @@ void Image::draw() const
 
 void Image::renderPixel(const int i, const int j, const Intersection &intersection) const
 {
-    const Vector3 lambertianShading = scene->calculateColor(intersection);
+    const Vector3 color = scene->calculateColor(intersection);
 
-    image[(i * width + j) * 3 + 0] = std::min(255., std::max(0., pow(lambertianShading[0], GAMMA_CORRECTION))); // RED
-    image[(i * width + j) * 3 + 1] = std::min(255., std::max(0., pow(lambertianShading[1], GAMMA_CORRECTION))); // GREEN
-    image[(i * width + j) * 3 + 2] = std::min(255., std::max(0., pow(lambertianShading[2], GAMMA_CORRECTION))); // BLUE
+    image[(i * width + j) * 3 + 0] = std::min(255., std::max(0., pow(color[0], GAMMA_CORRECTION))); // RED
+    image[(i * width + j) * 3 + 1] = std::min(255., std::max(0., pow(color[1], GAMMA_CORRECTION))); // GREEN
+    image[(i * width + j) * 3 + 2] = std::min(255., std::max(0., pow(color[2], GAMMA_CORRECTION))); // BLUE
 }
 
-Ray Image::calculatePixelRay(const int i, const int j) const
+const Ray Image::calculatePixelRay(const int i, const int j) const
 {
     const Vector3 cameraOrigin = camera->getOrigin();
 
@@ -75,7 +70,7 @@ Ray Image::calculatePixelRay(const int i, const int j) const
     return Ray(cameraOrigin, rayDirection);
 }
 
-Vector3 Image::calculatePixelPosition(const int i, const int j) const
+const Vector3 Image::calculatePixelPosition(const int i, const int j) const
 {
     const Vector3 cameraOrigin = camera->getOrigin();
 

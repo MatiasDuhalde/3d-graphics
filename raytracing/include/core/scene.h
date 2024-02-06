@@ -18,6 +18,7 @@ class Scene
     const bool lightSourceReachesPoint(const LightSource &lightSource, const Vector3 &point) const;
     const Vector3 calculateLambertianShading(const LightSource &lightSource,
                                              const Intersection &diffuseIntersection) const;
+    const Vector3 calculateColorRecursive(const Intersection &intersection, int depth) const;
     const Vector3 calculateColorRecursive(const Intersection &intersection, int depth, bool multiSampling) const;
     const Intersection calculateReflectedIntersection(const Intersection &intersection) const;
     const Intersection calculateRefractedIntersection(const Intersection &intersection) const;
@@ -44,7 +45,9 @@ class Scene
      * @brief Calculate the shading of the given intersection
      *
      * @param intersection
+     * @param multiSampling Whether the calculation starts multi-sampling
      * @return const Vector3 The shading of the intersection
      */
     const Vector3 calculateColor(const Intersection &intersection) const;
+    const Vector3 calculateColor(const Intersection &intersection, const bool multiSampling) const;
 };

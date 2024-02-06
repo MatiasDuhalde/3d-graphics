@@ -6,6 +6,7 @@
 #include "../../libs/stb_image.h"
 
 #include "../../include/utils/constants.h"
+#include "../../include/utils/random.h"
 #include "../../include/utils/vector3.h"
 #include "../../include/view/image.h"
 
@@ -43,16 +44,23 @@ void Image::draw() const
     {
         for (int j = 0; j < width; j++)
         {
-            const Ray ray = calculatePixelRay(i, j);
-            const Intersection intersection = scene->intersect(ray);
-            renderPixel(i, j, intersection);
+            renderPixel(i, j);
         }
     }
 }
 
-void Image::renderPixel(const int i, const int j, const Intersection &intersection) const
+void Image::renderPixel(const int i, const int j) const
 {
-    const Vector3 color = scene->calculateColor(intersection);
+    const int repetitions = ENABLE_ANTIALIASING ? ANTIALIASING_RAYS : 1;
+
+    Vector3 color = Vector3(0, 0, 0);
+    for (int k = 0; k < repetitions; k++)
+    {
+        const Ray ray = ENABLE_ANTIALIASING ? calculateRandomPixelRay(i, j) : calculatePixelRay(i, j);
+        const Intersection intersection = scene->intersect(ray);
+        color += scene->calculateColor(intersection, ENABLE_ANTIALIASING);
+    }
+    color /= repetitions;
 
     image[(i * width + j) * 3 + 0] = std::min(255., std::max(0., pow(color[0], GAMMA_CORRECTION))); // RED
     image[(i * width + j) * 3 + 1] = std::min(255., std::max(0., pow(color[1], GAMMA_CORRECTION))); // GREEN
@@ -66,6 +74,20 @@ const Ray Image::calculatePixelRay(const int i, const int j) const
     const Vector3 pixelPosition = calculatePixelPosition(i, j);
 
     const Vector3 rayDirection = (pixelPosition - cameraOrigin).normalize();
+
+    return Ray(cameraOrigin, rayDirection);
+}
+
+const Ray Image::calculateRandomPixelRay(const int i, const int j) const
+{
+    const Vector3 cameraOrigin = camera->getOrigin();
+
+    double x, y;
+    boxMuller(0.5, x, y);
+
+    const Vector3 randomPixelPosition = calculatePixelPosition(i, j) + Vector3(x, y, 0) * 0.5;
+
+    const Vector3 rayDirection = (randomPixelPosition - cameraOrigin).normalize();
 
     return Ray(cameraOrigin, rayDirection);
 }

@@ -54,6 +54,22 @@ Vector3 Vector3::operator+=(const Vector3 &other)
     return *this;
 }
 
+Vector3 Vector3::operator*=(double a)
+{
+    coord[0] *= a;
+    coord[1] *= a;
+    coord[2] *= a;
+    return *this;
+}
+
+Vector3 Vector3::operator/=(double a)
+{
+    coord[0] /= a;
+    coord[1] /= a;
+    coord[2] /= a;
+    return *this;
+}
+
 const double Vector3::dot(const Vector3 &other) const
 {
     return coord[0] * other[0] + coord[1] * other[1] + coord[2] * other[2];

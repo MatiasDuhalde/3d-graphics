@@ -23,6 +23,8 @@ class Vector3
     Vector3 operator*(const Vector3 &other) const;
     Vector3 operator/(double a) const;
     Vector3 operator+=(const Vector3 &other);
+    Vector3 operator*=(double a);
+    Vector3 operator/=(double a);
 
     const double dot(const Vector3 &other) const;
 

@@ -160,10 +160,10 @@ const Vector3 Scene::calculateIndirectLightingColor(const Intersection &intersec
     return indirectLighting;
 }
 
-const Vector3 Scene::calculateColor(const Intersection &intersection) const
+const Vector3 Scene::calculateColor(const Intersection &intersection, const bool multiSampling = false) const
 {
     if (lightSources.empty() || !intersection.isHit())
         return Vector3(0., 0., 0.);
 
-    return calculateColorRecursive(intersection, 0);
+    return calculateColorRecursive(intersection, 1, multiSampling);
 }

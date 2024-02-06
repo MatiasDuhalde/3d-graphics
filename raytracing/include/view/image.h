@@ -20,8 +20,9 @@ class Image
     Scene *scene = nullptr;
 
     const Ray calculatePixelRay(const int i, const int j) const;
+    const Ray calculateRandomPixelRay(const int i, const int j) const;
     const Vector3 calculatePixelPosition(const int i, const int j) const;
-    void renderPixel(const int i, const int j, const Intersection &intersection) const;
+    void renderPixel(const int i, const int j) const;
 
   public:
     Image(const int width, const int height);

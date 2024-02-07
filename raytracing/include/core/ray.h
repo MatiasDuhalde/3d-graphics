@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 
+#include "../utils/constants.h"
 #include "../utils/vector3.h"
 
 /**
@@ -24,9 +25,7 @@ class Ray
      * @param origin
      * @param direction Normalized direction vector
      */
-    constexpr Ray(const Vector3 &origin, const Vector3 &direction) : origin(origin), direction(direction)
-    {
-    }
+    constexpr Ray(const Vector3 &origin, const Vector3 &direction);
 
     /**
      * @brief Construct a new Ray object
@@ -35,14 +34,11 @@ class Ray
      * @param direction Normalized direction vector
      * @param refractiveIndex Refractive index of the medium the ray is in
      */
-    Ray(const Vector3 &origin, const Vector3 &direction, const double refractiveIndex)
-        : origin(origin), direction(direction), refractiveIndex(refractiveIndex)
-    {
-    }
+    constexpr Ray(const Vector3 &origin, const Vector3 &direction, const double refractiveIndex);
 
     const Vector3 &getOrigin() const;
     const Vector3 &getDirection() const;
-    const double getRefractiveIndex() const;
+    constexpr double getRefractiveIndex() const;
 
     /**
      * @brief Calculate the reflected ray of this ray
@@ -51,14 +47,55 @@ class Ray
      * @param normal
      * @return const Ray
      */
-    Ray calculateReflectedRay(const Vector3 &intersectionPoint, const Vector3 &normal) const;
+    constexpr Ray calculateReflectedRay(const Vector3 &intersectionPoint, const Vector3 &normal) const;
 
     /**
      * @brief Add a small offset to the origin of the ray to prevent self-intersection
      *
      * @return Ray&
      */
-    Ray &addOffset();
+    constexpr Ray &addOffset();
 
-    friend std::ostream &operator<<(std::ostream &os, const Ray &ray);
+    friend constexpr std::ostream &operator<<(std::ostream &os, const Ray &ray);
 };
+
+constexpr Ray::Ray(const Vector3 &origin, const Vector3 &direction) : origin(origin), direction(direction)
+{
+}
+
+constexpr Ray::Ray(const Vector3 &origin, const Vector3 &direction, const double refractiveIndex)
+    : origin(origin), direction(direction), refractiveIndex(refractiveIndex)
+{
+}
+
+inline const Vector3 &Ray::getOrigin() const
+{
+    return origin;
+}
+
+inline const Vector3 &Ray::getDirection() const
+{
+    return direction;
+}
+
+constexpr double Ray::getRefractiveIndex() const
+{
+    return refractiveIndex;
+}
+
+constexpr Ray Ray::calculateReflectedRay(const Vector3 &intersectionPoint, const Vector3 &normal) const
+{
+    return Ray(intersectionPoint, direction - normal * 2 * direction.dot(normal), refractiveIndex);
+}
+
+constexpr Ray &Ray::addOffset()
+{
+    origin += direction * RAY_OFFSET_EPSILON;
+    return *this;
+}
+
+constexpr std::ostream &operator<<(std::ostream &os, const Ray &ray)
+{
+    os << "Ray(origin: " << ray.origin << ", direction: " << ray.direction << ")";
+    return os;
+}

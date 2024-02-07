@@ -8,8 +8,8 @@
 class Camera
 {
   private:
-    Vector3 origin;
-    double fov;
+    const Vector3 origin;
+    const double fov;
 
   public:
     /**
@@ -18,8 +18,22 @@ class Camera
      * @param origin
      * @param fov The field of view of the camera in radians. 0 < fov < pi.
      */
-    Camera(const Vector3 &origin, const double fov);
+    constexpr Camera(const Vector3 &origin, const double fov);
 
     const Vector3 &getOrigin() const;
-    const double getFov() const;
+    constexpr double getFov() const;
 };
+
+constexpr Camera::Camera(const Vector3 &origin, const double fov) : origin(origin), fov(fov)
+{
+}
+
+inline const Vector3 &Camera::getOrigin() const
+{
+    return origin;
+}
+
+constexpr double Camera::getFov() const
+{
+    return fov;
+}

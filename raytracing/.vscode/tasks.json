@@ -6,7 +6,7 @@
       "command": "clang++",
       "detail": "Build the optimized engine",
       "args": [
-        "-fcolor-diagnostics",
+        "-Fcolor-diagnostics",
         "-g",
         "main.cpp",
         "src/**/*.cpp",
@@ -36,7 +36,7 @@
       "label": "Build debug app (clang/LLVM)",
       "command": "clang++",
       "detail": "Build the debug engine",
-      "args": ["-fcolor-diagnostics", "-g", "main.cpp", "src/**/*.cpp", "-o", "main", "-pthread"],
+      "args": ["-Fcolor-diagnostics", "-g", "main.cpp", "src/**/*.cpp", "-o", "main", "-pthread"],
       "problemMatcher": ["$gcc"],
       "hide": false,
       "isBackground": false,

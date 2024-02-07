@@ -82,10 +82,9 @@ const Ray Image::calculateRandomPixelRay(const int i, const int j) const
 {
     const Vector3 cameraOrigin = camera->getOrigin();
 
-    double x, y;
-    boxMuller(0.5, x, y);
+    const Vector3 randomOffset = boxMuller(0.25);
 
-    const Vector3 randomPixelPosition = calculatePixelPosition(i, j) + Vector3(x, y, 0) * 0.5;
+    const Vector3 randomPixelPosition = calculatePixelPosition(i, j) + randomOffset;
 
     const Vector3 rayDirection = (randomPixelPosition - cameraOrigin).normalize();
 

@@ -12,8 +12,8 @@
 
 int main()
 {
-    constexpr int imageWidth = 64;
-    constexpr int imageHeight = 64;
+    constexpr int imageWidth = 512;
+    constexpr int imageHeight = 512;
 
     Image image(imageWidth, imageHeight);
 

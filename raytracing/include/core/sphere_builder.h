@@ -27,7 +27,7 @@ class SphereBuilder
     class Exception : public std::exception
     {
       private:
-        std::string message;
+        const std::string message;
 
       public:
         Exception(const std::string &message);

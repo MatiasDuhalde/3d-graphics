@@ -31,7 +31,7 @@ class Scene
                                                      const bool multiSampling) const;
 
   public:
-    Scene();
+    constexpr Scene();
 
     constexpr Scene &addIntersectableObject(const IntersectableObject &intersectableObject);
     constexpr Scene &addLightSource(const LightSource &lightSource);
@@ -42,7 +42,7 @@ class Scene
      * @param ray
      * @return const Intersection The closest intersection with the ray
      */
-    const Intersection intersect(const Ray &ray) const;
+    constexpr Intersection intersect(const Ray &ray) const;
 
     /**
      * @brief Calculate the shading of the given intersection
@@ -55,7 +55,7 @@ class Scene
     constexpr Vector3 calculateColor(const Intersection &intersection, const bool multiSampling = false) const;
 };
 
-inline Scene::Scene()
+constexpr Scene::Scene()
     : intersectableObjects(std::vector<const IntersectableObject *>()), lightSources(std::vector<const LightSource *>())
 {
 }
@@ -72,7 +72,7 @@ constexpr Scene &Scene::addLightSource(const LightSource &lightSource)
     return *this;
 }
 
-inline const Intersection Scene::intersect(const Ray &ray) const
+constexpr Intersection Scene::intersect(const Ray &ray) const
 {
     Intersection intersection;
 

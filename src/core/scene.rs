@@ -224,7 +224,14 @@ impl Scene {
             }
         }
 
-        color / ray_paths as f64
+        let balanced_color = color / ray_paths as f64;
+        let albedo = intersection.get_albedo().unwrap();
+
+        Vector3::new(
+            albedo.x() * balanced_color.x(),
+            albedo.y() * balanced_color.y(),
+            albedo.z() * balanced_color.z(),
+        )
     }
 
     fn calculate_random_normal_hemisphere_ray(&self, intersection: &Intersection) -> Ray {
@@ -245,5 +252,6 @@ impl Scene {
         let direction = (t1 * x + t2 * y + *intersection.get_normal() * z).normalize();
 
         Ray::new(*intersection.get_point(), direction).add_offset()
+        // Ray::new(*intersection.get_point(), *intersection.get_normal()).add_offset()
     }
 }

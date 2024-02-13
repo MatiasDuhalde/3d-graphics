@@ -55,9 +55,7 @@ impl Vector3 {
 
     pub fn normalize(&mut self) -> Self {
         let norm = self.norm();
-        self.x /= norm;
-        self.y /= norm;
-        self.z /= norm;
+        *self /= norm;
         *self
     }
 }

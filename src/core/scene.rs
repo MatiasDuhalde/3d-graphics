@@ -2,8 +2,8 @@ use {
     crate::{
         core::{Intersectable, Intersection, LightSource, Ray},
         utils::{
-            random_f64, Vector3, ENABLE_FRESNEL, ENABLE_INDIRECT_LIGHTING, FRESNEL_RAYS,
-            INDIRECT_LIGHTING_RAYS, MAX_RECURSION_DEPTH,
+            random_cos, random_f64, Vector3, ENABLE_FRESNEL, ENABLE_INDIRECT_LIGHTING,
+            MAX_RECURSION_DEPTH,
         },
     },
     std::f64::consts::PI,
@@ -53,67 +53,66 @@ impl Scene {
         intersection
     }
 
-    pub fn calculate_color(&self, intersection: &Intersection, multi_sampling: bool) -> Vector3 {
+    pub fn calculate_color(&self, intersection: &Intersection) -> Vector3 {
         if self.light_sources.is_empty() {
             Vector3::new(0., 0., 0.)
         } else {
-            self.calculate_color_recursive(intersection, 1, multi_sampling)
+            self.calculate_color_recursive(intersection, 1)
         }
     }
 
-    fn calculate_color_recursive(
-        &self,
-        intersection: &Intersection,
-        depth: i32,
-        multi_sampling: bool,
-    ) -> Vector3 {
+    fn calculate_color_recursive(&self, intersection: &Intersection, depth: i32) -> Vector3 {
         if depth > MAX_RECURSION_DEPTH {
             return Vector3::new(0., 0., 0.);
         }
 
         if intersection.is_opaque() {
-            let light_source = self.light_sources[0].as_ref();
-            let direct_lighting =
-                if self.light_source_reaches_point(intersection.get_point(), light_source) {
-                    self.calculate_lambertian_shading(light_source, intersection)
-                } else {
-                    Vector3::new(0., 0., 0.)
-                };
-
-            if ENABLE_INDIRECT_LIGHTING {
-                return direct_lighting
-                    + self.calculate_indirect_lighting_color(intersection, depth, multi_sampling);
-            }
-            return direct_lighting;
+            self.calculate_opaque_color(intersection, depth)
+        } else if intersection.is_refracted() {
+            // a refracted intersection is also reflected, so this goes first
+            self.calculate_refracted_color(intersection, depth)
+        } else if intersection.is_reflected() {
+            self.calculate_reflected_color(intersection, depth)
+        } else {
+            Vector3::new(0., 0., 0.)
         }
+    }
 
-        // a refracted intersection is also reflected, so this goes first
-        if intersection.is_refracted() {
-            if ENABLE_FRESNEL {
-                return self.calculate_fresnel_color(intersection, depth, multi_sampling);
-            }
-            let refracted_intersection = self.calculate_refracted_intersection(intersection);
-            if refracted_intersection.is_some() {
-                return self.calculate_color_recursive(
-                    &refracted_intersection.unwrap(),
-                    depth + 1,
-                    multi_sampling,
-                );
-            }
+    fn calculate_opaque_color(&self, intersection: &Intersection, depth: i32) -> Vector3 {
+        let light_source = self.light_sources[0].as_ref();
+        let direct_lighting =
+            if self.light_source_reaches_point(intersection.get_point(), light_source) {
+                self.calculate_lambertian_shading(light_source, intersection)
+            } else {
+                Vector3::new(0., 0., 0.)
+            };
+
+        if ENABLE_INDIRECT_LIGHTING {
+            direct_lighting + self.calculate_indirect_lighting_color(intersection, depth)
+        } else {
+            direct_lighting
         }
+    }
 
-        if intersection.is_reflected() {
-            let reflected_intersection = self.calculate_reflected_intersection(intersection);
-            if reflected_intersection.is_some() {
-                return self.calculate_color_recursive(
-                    &reflected_intersection.unwrap(),
-                    depth + 1,
-                    multi_sampling,
-                );
-            }
+    fn calculate_refracted_color(&self, intersection: &Intersection, depth: i32) -> Vector3 {
+        if ENABLE_FRESNEL {
+            return self.calculate_fresnel_color(intersection, depth);
         }
+        let refracted_intersection = self.calculate_refracted_intersection(intersection);
+        if refracted_intersection.is_some() {
+            self.calculate_color_recursive(&refracted_intersection.unwrap(), depth + 1)
+        } else {
+            Vector3::new(0., 0., 0.)
+        }
+    }
 
-        Vector3::new(0., 0., 0.)
+    fn calculate_reflected_color(&self, intersection: &Intersection, depth: i32) -> Vector3 {
+        let reflected_intersection = self.calculate_reflected_intersection(intersection);
+        if reflected_intersection.is_some() {
+            self.calculate_color_recursive(&reflected_intersection.unwrap(), depth + 1)
+        } else {
+            Vector3::new(0., 0., 0.)
+        }
     }
 
     fn light_source_reaches_point(&self, point: &Vector3, light_source: &LightSource) -> bool {
@@ -163,91 +162,41 @@ impl Scene {
         self.intersect(intersection.get_refracted_ray())
     }
 
-    fn calculate_fresnel_color(
-        &self,
-        intersection: &Intersection,
-        depth: i32,
-        multi_sampling: bool,
-    ) -> Vector3 {
-        let ray_paths = if multi_sampling { 1 } else { FRESNEL_RAYS };
-
-        let reflection_coefficient = intersection.get_reflection_coefficient().unwrap();
-
-        let mut color = Vector3::new(0., 0., 0.);
-        for _ in 0..ray_paths {
-            if random_f64() < reflection_coefficient {
-                let reflected_intersection = self.calculate_reflected_intersection(intersection);
-                if reflected_intersection.is_some() {
-                    color += self.calculate_color_recursive(
-                        &reflected_intersection.unwrap(),
-                        depth + 1,
-                        true,
-                    );
-                }
-            } else {
-                let refracted_intersection = self.calculate_refracted_intersection(intersection);
-                if refracted_intersection.is_some() {
-                    color += self.calculate_color_recursive(
-                        &refracted_intersection.unwrap(),
-                        depth + 1,
-                        true,
-                    );
-                }
+    fn calculate_fresnel_color(&self, intersection: &Intersection, depth: i32) -> Vector3 {
+        if random_f64() < intersection.get_reflection_coefficient().unwrap() {
+            let reflected_intersection = self.calculate_reflected_intersection(intersection);
+            if reflected_intersection.is_some() {
+                return self.calculate_color_recursive(&reflected_intersection.unwrap(), depth + 1);
+            }
+        } else {
+            let refracted_intersection = self.calculate_refracted_intersection(intersection);
+            if refracted_intersection.is_some() {
+                return self.calculate_color_recursive(&refracted_intersection.unwrap(), depth + 1);
             }
         }
 
-        color / ray_paths as f64
+        Vector3::new(0., 0., 0.)
     }
 
     fn calculate_indirect_lighting_color(
         &self,
         intersection: &Intersection,
         depth: i32,
-        multi_sampling: bool,
     ) -> Vector3 {
-        let ray_paths = if multi_sampling {
-            1
-        } else {
-            INDIRECT_LIGHTING_RAYS
-        };
+        let random_ray = self.calculate_random_normal_hemisphere_ray(intersection);
+        let indirect_intersection = self.intersect(&random_ray);
+        if indirect_intersection.is_some() {
+            let color = self.calculate_color_recursive(&indirect_intersection.unwrap(), depth + 1);
 
-        let mut color = Vector3::new(0., 0., 0.);
-        for _ in 0..ray_paths {
-            let random_ray = self.calculate_random_normal_hemisphere_ray(intersection);
-            let indirect_intersection = self.intersect(&random_ray);
-            if indirect_intersection.is_some() {
-                color += self.calculate_color_recursive(
-                    &indirect_intersection.unwrap(),
-                    depth + 1,
-                    true,
-                );
-            }
+            return intersection.get_albedo().unwrap().hadamard_product(&color);
         }
 
-        let balanced_color = color / ray_paths as f64;
-        let albedo = intersection.get_albedo().unwrap();
-
-        albedo.hadamard_product(&balanced_color)
+        Vector3::new(0., 0., 0.)
     }
 
     fn calculate_random_normal_hemisphere_ray(&self, intersection: &Intersection) -> Ray {
-        let random_direction = self.random_cos(intersection.get_normal());
+        let random_direction = random_cos(intersection.get_normal());
 
         Ray::new(*intersection.get_point(), random_direction).add_offset()
-    }
-
-    fn random_cos(&self, vector: &Vector3) -> Vector3 {
-        let r1 = random_f64();
-        let r2 = random_f64();
-
-        let x = (2. * PI * r1).cos() * (1. - r2).sqrt();
-        let y = (2. * PI * r1).sin() * (1. - r2).sqrt();
-        let z = r2.sqrt();
-
-        // FIXME: Edge case when normal is (0, 0, 1)
-        let t1 = vector.cross(&Vector3::new(0., 0., 1.)).normalize();
-        let t2 = vector.cross(&t1).normalize();
-
-        (t1 * x + t2 * y + *vector * z).normalize()
     }
 }

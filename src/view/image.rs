@@ -1,7 +1,10 @@
 use {
     crate::{
         core::{Ray, Scene},
-        utils::{box_muller, Vector3, ANTIALIASING_RAYS, ENABLE_ANTIALIASING, GAMMA_CORRECTION},
+        utils::{
+            box_muller, Vector3, ANTIALIASING_RAYS, ENABLE_ANTIALIASING, ENABLE_FRESNEL,
+            ENABLE_INDIRECT_LIGHTING, FRESNEL_RAYS, GAMMA_CORRECTION, INDIRECT_LIGHTING_RAYS,
+        },
         view::Camera,
     },
     image::{codecs::png, ColorType, ImageEncoder},
@@ -61,6 +64,10 @@ impl Image {
     fn calculate_pixel_color(&self, i: usize, j: usize) -> (u8, u8, u8) {
         let ray_paths = if ENABLE_ANTIALIASING {
             ANTIALIASING_RAYS
+        } else if ENABLE_FRESNEL {
+            FRESNEL_RAYS
+        } else if ENABLE_INDIRECT_LIGHTING {
+            INDIRECT_LIGHTING_RAYS
         } else {
             1
         };
@@ -74,9 +81,7 @@ impl Image {
             };
             let intersection = self.scene.intersect(&ray);
             if intersection.is_some() {
-                color += self
-                    .scene
-                    .calculate_color(&intersection.unwrap(), ENABLE_ANTIALIASING);
+                color += self.scene.calculate_color(&intersection.unwrap());
             }
         }
         color /= ray_paths as f64;

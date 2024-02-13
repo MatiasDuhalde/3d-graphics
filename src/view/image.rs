@@ -5,6 +5,10 @@ use {
         view::Camera,
     },
     image::{codecs::png, ColorType, ImageEncoder},
+    rayon::{
+        iter::{IndexedParallelIterator, ParallelIterator},
+        slice::ParallelSliceMut,
+    },
     std::f64,
 };
 
@@ -33,14 +37,28 @@ impl Image {
 
 impl Image {
     pub fn draw(&mut self) {
-        for i in 0..self.height {
-            for j in 0..self.width {
-                self.render_pixel(i, j);
-            }
-        }
+        let data = self.calculate_pixel_values();
+        self.data.copy_from_slice(&data);
     }
 
-    pub fn render_pixel(&mut self, i: u32, j: u32) {
+    pub fn calculate_pixel_values(&self) -> Vec<u8> {
+        let mut data = vec![0; (self.width * self.height * COLOR_CHANNELS) as usize];
+
+        data.par_chunks_mut((self.width * COLOR_CHANNELS) as usize)
+            .enumerate()
+            .for_each(|(i, row)| {
+                for (j, pixel) in (0..row.len()).step_by(COLOR_CHANNELS as usize).enumerate() {
+                    let color = self.calculate_pixel_color(i, j);
+                    row[pixel] = color.0;
+                    row[pixel + 1] = color.1;
+                    row[pixel + 2] = color.2;
+                }
+            });
+
+        data
+    }
+
+    fn calculate_pixel_color(&self, i: usize, j: usize) -> (u8, u8, u8) {
         let ray_paths = if ENABLE_ANTIALIASING {
             ANTIALIASING_RAYS
         } else {
@@ -63,28 +81,31 @@ impl Image {
         }
         color /= ray_paths as f64;
 
-        self.data[(i * self.width + j) as usize * 3 + 0] =
-            f64::min(255., f64::powf(color.x(), GAMMA_CORRECTION)) as u8;
-        self.data[(i * self.width + j) as usize * 3 + 1] =
-            f64::min(255., f64::powf(color.y(), GAMMA_CORRECTION)) as u8;
-        self.data[(i * self.width + j) as usize * 3 + 2] =
-            f64::min(255., f64::powf(color.z(), GAMMA_CORRECTION)) as u8;
+        self.gamma_correct_color(color)
     }
 
-    pub fn calculate_pixel_ray(&self, i: u32, j: u32) -> Ray {
+    fn gamma_correct_color(&self, color: Vector3) -> (u8, u8, u8) {
+        (
+            f64::min(255., f64::powf(color.x(), GAMMA_CORRECTION)) as u8,
+            f64::min(255., f64::powf(color.y(), GAMMA_CORRECTION)) as u8,
+            f64::min(255., f64::powf(color.z(), GAMMA_CORRECTION)) as u8,
+        )
+    }
+
+    fn calculate_pixel_ray(&self, i: usize, j: usize) -> Ray {
         let pixel_position = self.calculate_pixel_position(i, j);
         let ray_direction = (pixel_position - *self.camera.get_position()).normalize();
         Ray::new(*self.camera.get_position(), ray_direction)
     }
 
-    pub fn calculate_random_pixel_ray(&self, i: u32, j: u32) -> Ray {
+    fn calculate_random_pixel_ray(&self, i: usize, j: usize) -> Ray {
         let random_offset = box_muller(0.25);
         let random_pixel_position = self.calculate_pixel_position(i, j) + random_offset;
         let ray_direction = (random_pixel_position - *self.camera.get_position()).normalize();
         Ray::new(*self.camera.get_position(), ray_direction)
     }
 
-    pub fn calculate_pixel_position(&self, i: u32, j: u32) -> Vector3 {
+    fn calculate_pixel_position(&self, i: usize, j: usize) -> Vector3 {
         let x = (j as f64 + 0.5) - (self.width as f64 / 2.);
         let y = -((i as f64 + 0.5) - (self.height as f64 / 2.));
         let z = -(self.width as f64 / (2. * (self.camera.get_fov() / 2.).tan()));

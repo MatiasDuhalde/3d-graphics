@@ -227,14 +227,16 @@ impl Scene {
         let balanced_color = color / ray_paths as f64;
         let albedo = intersection.get_albedo().unwrap();
 
-        Vector3::new(
-            albedo.x() * balanced_color.x(),
-            albedo.y() * balanced_color.y(),
-            albedo.z() * balanced_color.z(),
-        )
+        albedo.hadamard_product(&balanced_color)
     }
 
     fn calculate_random_normal_hemisphere_ray(&self, intersection: &Intersection) -> Ray {
+        let random_direction = self.random_cos(intersection.get_normal());
+
+        Ray::new(*intersection.get_point(), random_direction).add_offset()
+    }
+
+    fn random_cos(&self, vector: &Vector3) -> Vector3 {
         let r1 = random_f64();
         let r2 = random_f64();
 
@@ -243,15 +245,9 @@ impl Scene {
         let z = r2.sqrt();
 
         // FIXME: Edge case when normal is (0, 0, 1)
-        let t1 = intersection
-            .get_normal()
-            .cross(&Vector3::new(0., 0., 1.))
-            .normalize();
-        let t2 = intersection.get_normal().cross(&t1).normalize();
+        let t1 = vector.cross(&Vector3::new(0., 0., 1.)).normalize();
+        let t2 = vector.cross(&t1).normalize();
 
-        let direction = (t1 * x + t2 * y + *intersection.get_normal() * z).normalize();
-
-        Ray::new(*intersection.get_point(), direction).add_offset()
-        // Ray::new(*intersection.get_point(), *intersection.get_normal()).add_offset()
+        (t1 * x + t2 * y + *vector * z).normalize()
     }
 }

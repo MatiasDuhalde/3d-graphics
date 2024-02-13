@@ -1,14 +1,17 @@
-use crate::{
-    core::{Intersectable, Intersection, Ray},
-    utils::Vector3,
+use {
+    crate::{
+        core::{Intersectable, Intersection, IntersectionBuilder, LightSource, Ray},
+        utils::{random_cos, Vector3},
+    },
+    std::f64::consts::PI,
 };
 
-use super::intersection::IntersectionBuilder;
-
+const DEFAULT_COLOR: Vector3 = Vector3::new(1., 1., 1.);
 const DEFAULT_MIRROR: bool = false;
 const DEFAULT_TRANSPARENT: bool = false;
 const DEFAULT_REFRACTIVE_INDEX: f64 = 1.;
-const DEFAULT_COLOR: Vector3 = Vector3::new(1., 1., 1.);
+const DEFAULT_LIGHT: bool = false;
+const DEFAULT_LIGHT_INTENSITY: f64 = 0.;
 
 pub struct Sphere {
     center: Vector3,
@@ -17,6 +20,8 @@ pub struct Sphere {
     mirror: bool,
     transparent: bool,
     refractive_index: f64,
+    light: bool,
+    light_intensity: f64,
 }
 
 pub struct SphereBuilder {
@@ -26,6 +31,8 @@ pub struct SphereBuilder {
     mirror: bool,
     transparent: bool,
     refractive_index: f64,
+    light: bool,
+    light_intensity: f64,
 }
 
 impl SphereBuilder {
@@ -37,6 +44,8 @@ impl SphereBuilder {
             mirror: DEFAULT_MIRROR,
             transparent: DEFAULT_TRANSPARENT,
             refractive_index: DEFAULT_REFRACTIVE_INDEX,
+            light: DEFAULT_LIGHT,
+            light_intensity: DEFAULT_LIGHT_INTENSITY,
         }
     }
 
@@ -60,6 +69,16 @@ impl SphereBuilder {
         self
     }
 
+    pub fn with_light(&mut self, light: bool) -> &mut Self {
+        self.light = light;
+        self
+    }
+
+    pub fn with_light_intensity(&mut self, light_intensity: f64) -> &mut Self {
+        self.light_intensity = light_intensity / (4. * PI * PI * self.radius * self.radius);
+        self
+    }
+
     pub fn build(&self) -> Sphere {
         Sphere {
             center: self.center,
@@ -68,6 +87,8 @@ impl SphereBuilder {
             mirror: self.mirror,
             transparent: self.transparent,
             refractive_index: self.refractive_index,
+            light: self.light,
+            light_intensity: self.light_intensity,
         }
     }
 }
@@ -104,6 +125,46 @@ impl Sphere {
     }
 }
 
+impl LightSource for Sphere {
+    fn get_position(&self) -> &Vector3 {
+        &self.center
+    }
+
+    fn get_intensity(&self) -> f64 {
+        self.light_intensity
+    }
+
+    fn calculate_ray_from_light_source(&self, point: &Vector3) -> Ray {
+        let random_direction = random_cos(&self.normal(point));
+        let random_surface_point = random_direction * self.radius + self.center;
+
+        let light_direction = (*point - random_surface_point).normalize();
+
+        Ray::new(random_surface_point, light_direction).add_offset()
+    }
+
+    fn calculate_lambertian_shading(
+        &self,
+        point: &Vector3,
+        normal: &Vector3,
+        albedo: &Vector3,
+        light_ray: &Ray,
+    ) -> Vector3 {
+        let light_surface_point = *light_ray.get_origin();
+        let light_ray_direction = *light_ray.get_direction();
+        let light_source_normal = self.normal(&light_surface_point);
+
+        let probability_density_function =
+            light_source_normal.dot(&self.normal(point)) / (PI * self.radius * self.radius);
+
+        let a = f64::max(0., normal.dot(&-light_ray_direction));
+        let b = f64::max(0., light_source_normal.dot(&light_ray_direction));
+
+        self.light_intensity * *albedo / PI * a * b
+            / ((light_surface_point - *point).norm2() * probability_density_function)
+    }
+}
+
 impl Intersectable for Sphere {
     fn intersect(&self, ray: &Ray) -> Option<Intersection> {
         let center_to_origin = *ray.get_origin() - self.center;
@@ -131,7 +192,9 @@ impl Intersectable for Sphere {
         let mut intersection_builder =
             IntersectionBuilder::new(intersection_point, normal, distance);
 
-        if self.mirror {
+        if self.light {
+            intersection_builder.with_light_intensity(self.light_intensity);
+        } else if self.mirror {
             intersection_builder.with_reflected_ray(
                 ray.calculate_reflected_ray(&intersection_point, &normal)
                     .add_offset(),

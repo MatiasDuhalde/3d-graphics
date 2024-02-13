@@ -4,6 +4,7 @@ const DEFAULT_ALBEDO: Option<Vector3> = None;
 const DEFAULT_REFLECTED_RAY: Option<Ray> = None;
 const DEFAULT_REFRACTED_RAY: Option<Ray> = None;
 const DEFAULT_REFLECTION_COEFFICIENT: Option<f64> = None;
+const DEFAULT_LIGHT_INTENSITY: Option<f64> = None;
 
 pub struct Intersection {
     point: Vector3,
@@ -13,6 +14,7 @@ pub struct Intersection {
     reflected_ray: Option<Ray>,
     refracted_ray: Option<Ray>,
     reflection_coefficient: Option<f64>,
+    light_intensity: Option<f64>,
 }
 
 pub struct IntersectionBuilder {
@@ -23,6 +25,7 @@ pub struct IntersectionBuilder {
     reflected_ray: Option<Ray>,
     refracted_ray: Option<Ray>,
     reflection_coefficient: Option<f64>,
+    light_intensity: Option<f64>,
 }
 
 impl Intersection {
@@ -65,6 +68,14 @@ impl Intersection {
     pub fn get_reflection_coefficient(&self) -> Option<f64> {
         self.reflection_coefficient
     }
+
+    pub fn is_light(&self) -> bool {
+        self.light_intensity.is_some()
+    }
+
+    pub fn get_light_intensity(&self) -> Option<f64> {
+        self.light_intensity
+    }
 }
 
 impl IntersectionBuilder {
@@ -77,6 +88,7 @@ impl IntersectionBuilder {
             reflected_ray: DEFAULT_REFLECTED_RAY,
             refracted_ray: DEFAULT_REFRACTED_RAY,
             reflection_coefficient: DEFAULT_REFLECTION_COEFFICIENT,
+            light_intensity: DEFAULT_LIGHT_INTENSITY,
         }
     }
 
@@ -100,6 +112,11 @@ impl IntersectionBuilder {
         self
     }
 
+    pub fn with_light_intensity(&mut self, light_intensity: f64) -> &mut Self {
+        self.light_intensity = Some(light_intensity);
+        self
+    }
+
     pub fn build(self) -> Intersection {
         Intersection {
             point: self.point,
@@ -109,6 +126,7 @@ impl IntersectionBuilder {
             reflected_ray: self.reflected_ray,
             refracted_ray: self.refracted_ray,
             reflection_coefficient: self.reflection_coefficient,
+            light_intensity: self.light_intensity,
         }
     }
 }

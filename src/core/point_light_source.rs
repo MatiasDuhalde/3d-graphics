@@ -30,7 +30,7 @@ impl LightSource for PointLightSource {
     }
 
     fn calculate_ray_from_light_source(&self, point: &Vector3) -> Ray {
-        Ray::new(*point, (*point - self.position).normalize()).add_offset()
+        Ray::new(self.position, (*point - self.position).normalize()).add_offset()
     }
 
     fn calculate_lambertian_shading(

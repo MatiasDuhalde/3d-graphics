@@ -13,6 +13,7 @@ const DEFAULT_REFRACTIVE_INDEX: f64 = 1.;
 const DEFAULT_LIGHT: bool = false;
 const DEFAULT_LIGHT_INTENSITY: f64 = 0.;
 
+#[derive(Clone)]
 pub struct Sphere {
     center: Vector3,
     radius: f64,

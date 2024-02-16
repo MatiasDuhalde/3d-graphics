@@ -23,6 +23,9 @@ impl Mesh {
         let contents = fs::read_to_string(filename).expect("Failed to read file");
         for line in contents.lines() {
             let parts: Vec<&str> = line.split_whitespace().collect();
+            if parts.len() == 0 {
+                continue;
+            }
             match parts[0] {
                 "v" => {
                     let x = parts[1].parse::<f64>().unwrap();

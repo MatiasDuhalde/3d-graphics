@@ -1,3 +1,5 @@
+pub const MESH_EPSILON: f64 = 1E-6;
+
 pub const RAY_OFFSET_EPSILON: f64 = 1E-6;
 pub const GAMMA_CORRECTION: f64 = 1.0 / 2.2;
 pub const MAX_RECURSION_DEPTH: i32 = 4;

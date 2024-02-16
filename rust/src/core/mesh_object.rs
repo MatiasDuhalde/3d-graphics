@@ -1,6 +1,6 @@
 use crate::{
     core::{BoundingBox, Intersectable, Intersection, IntersectionBuilder, Ray},
-    utils::{Mesh, Vector3},
+    utils::{Mesh, Vector3, MESH_EPSILON},
 };
 
 const DEFAULT_ALBEDO: Vector3 = Vector3::new(1., 1., 1.);
@@ -8,7 +8,7 @@ const DEFAULT_ALBEDO: Vector3 = Vector3::new(1., 1., 1.);
 pub struct MeshObject {
     mesh: Mesh,
     color: Vector3,
-    // bounding_box: BoundingBox,
+    bounding_box: BoundingBox,
 }
 
 pub struct MeshObjectBuilder {
@@ -48,16 +48,16 @@ impl MeshObjectBuilder {
         MeshObject {
             mesh: self.mesh.clone(),
             color: self.albedo,
-            // bounding_box: BoundingBox::new(&self.mesh),
+            bounding_box: BoundingBox::new(&self.mesh),
         }
     }
 }
 
 impl Intersectable for MeshObject {
     fn intersect(&self, ray: &Ray) -> Option<Intersection> {
-        // if self.bounding_box.intersect(ray).is_none() {
-        //     return None;
-        // }
+        if self.bounding_box.intersect(ray).is_none() {
+            return None;
+        }
 
         let u = *ray.get_direction();
         let o = *ray.get_origin();
@@ -70,14 +70,28 @@ impl Intersectable for MeshObject {
 
             let e1 = b - a;
             let e2 = c - a;
-
             let n = e1.cross(&e2);
+            let u_dot_n = u.dot(&n);
+            if u_dot_n.abs() < MESH_EPSILON {
+                continue;
+            }
 
             let a_o = a - o;
+            let a_o_x_u = a_o.cross(&u);
+
+            let beta = e2.dot(&a_o_x_u) / u_dot_n;
+            if beta < 0. || beta > 1. {
+                continue;
+            }
+
+            let gamma = -e1.dot(&a_o_x_u) / u_dot_n;
+            if gamma < 0. || gamma + beta > 1. {
+                continue;
+            }
 
             let t = a_o.dot(&n) / u.dot(&n);
 
-            if t > 0. {
+            if t > MESH_EPSILON {
                 let p = o + u * t;
                 let normal = n.normalized();
 

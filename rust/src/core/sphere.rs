@@ -94,32 +94,6 @@ impl SphereBuilder {
     }
 }
 
-// impl Sphere {
-//     pub fn get_center(&self) -> &Vector3 {
-//         &self.center
-//     }
-
-//     pub fn get_radius(&self) -> f64 {
-//         self.radius
-//     }
-
-//     pub fn get_color(&self) -> &Vector3 {
-//         &self.color
-//     }
-
-//     pub fn is_mirror(&self) -> bool {
-//         self.mirror
-//     }
-
-//     pub fn is_transparent(&self) -> bool {
-//         self.transparent
-//     }
-
-//     pub fn get_refractive_index(&self) -> f64 {
-//         self.refractive_index
-//     }
-// }
-
 impl Sphere {
     pub fn normal(&self, point: &Vector3) -> Vector3 {
         (*point - self.center).normalize()

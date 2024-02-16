@@ -9,5 +9,5 @@ mod sphere;
 pub use {
     intersectable::Intersectable, intersection::Intersection, intersection::IntersectionBuilder,
     light_source::LightSource, point_light_source::PointLightSource, ray::Ray, scene::Scene,
-    sphere::Sphere, sphere::SphereBuilder,
+    sphere::SphereBuilder,
 };

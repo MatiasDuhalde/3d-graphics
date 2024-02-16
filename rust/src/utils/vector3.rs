@@ -60,6 +60,12 @@ impl Vector3 {
         *self /= norm;
         *self
     }
+
+    pub fn normalized(&self) -> Self {
+        let mut normalized = *self;
+        normalized.normalize();
+        normalized
+    }
 }
 
 impl Add for Vector3 {

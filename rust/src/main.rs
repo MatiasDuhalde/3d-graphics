@@ -11,6 +11,7 @@ use {
     std::f64::consts::PI,
 };
 
+#[allow(dead_code)]
 fn spheres_image() -> Image {
     let mirror_sphere = SphereBuilder::new(Vector3::new(-25., 0., 0.), 10.)
         .with_mirror(true)
@@ -70,6 +71,7 @@ fn spheres_image() -> Image {
     Image::new(512, 512, camera, scene)
 }
 
+#[allow(dead_code)]
 fn cat_image() -> Image {
     let cat_mesh = Mesh::from_obj_file("assets/cat/cat.obj");
 
@@ -97,10 +99,41 @@ fn cat_image() -> Image {
     Image::new(512, 512, camera, scene)
 }
 
+#[allow(dead_code)]
+fn spinning_cat() {
+    let cat_mesh = Mesh::from_obj_file("assets/cat/cat.obj");
+
+    for theta in 0..16 {
+        let cat_object = MeshObjectBuilder::new(&cat_mesh)
+            .with_rotation(Vector3::new(PI / 2., 0., PI / 2. + theta as f64 * PI / 8.))
+            .with_translation(Vector3::new(0., 0., -21.5))
+            .with_scale(1.2)
+            .with_albedo(Vector3::new(0.71764705882, 0.25490196078, 0.05490196078))
+            .build();
+
+        let light_source = PointLightSource::new(Vector3::new(0., 55., 0.), 5E9);
+
+        let mut scene = Scene::new();
+
+        scene
+            .add_object(Box::new(cat_object))
+            .add_light_source(Box::new(light_source));
+
+        let camera = Camera::new(
+            Vector3::new(0., 55., 0.),
+            Vector3::new(0., 0., PI),
+            75. * PI / 180.,
+        );
+
+        let mut image = Image::new(512, 512, camera, scene);
+        image.draw();
+
+        image.save(&format!("cat_{}.png", theta));
+    }
+}
+
 fn main() {
     let mut image = cat_image();
-
     image.draw();
-
-    image.save("output.png");
+    image.save("cat.png");
 }

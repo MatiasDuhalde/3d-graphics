@@ -40,11 +40,11 @@ impl LightSource for PointLightSource {
         albedo: &Vector3,
         _light_ray: &Ray,
     ) -> Vector3 {
-        let mut light_direction = self.position - *point;
+        let light_direction = self.position - *point;
         let d2 = light_direction.norm2();
 
         let surface_power = self.intensity / (4. * PI * d2);
 
-        *albedo * surface_power * f64::max(0., normal.dot(&light_direction.normalize())) / PI
+        *albedo * surface_power * f64::max(0., normal.dot(&light_direction.normalized())) / PI
     }
 }

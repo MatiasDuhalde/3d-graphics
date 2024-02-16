@@ -117,7 +117,7 @@ impl IntersectionBuilder {
         self
     }
 
-    pub fn build(self) -> Intersection {
+    pub fn build(&self) -> Intersection {
         Intersection {
             point: self.point,
             normal: self.normal,

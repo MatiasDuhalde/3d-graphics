@@ -4,16 +4,19 @@ use crate::{
 };
 
 const DEFAULT_ALBEDO: Vector3 = Vector3::new(1., 1., 1.);
+const DEFAULT_MIRROR: bool = false;
 
 pub struct MeshObject {
     mesh: Mesh,
     color: Vector3,
+    mirror: bool,
     bounding_box: BoundingBox,
 }
 
 pub struct MeshObjectBuilder {
     mesh: Mesh,
     albedo: Vector3,
+    mirror: bool,
 }
 
 impl MeshObjectBuilder {
@@ -21,11 +24,17 @@ impl MeshObjectBuilder {
         MeshObjectBuilder {
             mesh: mesh.clone(),
             albedo: DEFAULT_ALBEDO,
+            mirror: DEFAULT_MIRROR,
         }
     }
 
     pub fn with_color(&mut self, albedo: Vector3) -> &mut Self {
         self.albedo = albedo;
+        self
+    }
+
+    pub fn with_mirror(&mut self, mirror: bool) -> &mut Self {
+        self.mirror = mirror;
         self
     }
 
@@ -48,6 +57,7 @@ impl MeshObjectBuilder {
         MeshObject {
             mesh: self.mesh.clone(),
             color: self.albedo,
+            mirror: self.mirror,
             bounding_box: BoundingBox::new(&self.mesh),
         }
     }
@@ -95,9 +105,16 @@ impl Intersectable for MeshObject {
                 let p = o + u * t;
                 let normal = n.normalized();
 
-                let intersection = IntersectionBuilder::new(p, normal, t)
-                    .with_albedo(self.color)
-                    .build();
+                let mut intersection_builder = IntersectionBuilder::new(p, normal, t);
+
+                if self.mirror {
+                    let reflected_ray = ray.calculate_reflected_ray(&p, &normal).add_offset();
+                    intersection_builder.with_reflected_ray(reflected_ray);
+                } else {
+                    intersection_builder.with_albedo(self.color);
+                }
+
+                let intersection = intersection_builder.build();
 
                 if closest_intersection.is_some() {
                     if t < closest_intersection.as_ref().unwrap().get_distance() {

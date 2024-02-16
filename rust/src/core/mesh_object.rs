@@ -1,18 +1,22 @@
 use crate::{
-    core::{Intersectable, Intersection, IntersectionBuilder, Ray},
+    core::{BoundingBox, Intersectable, Intersection, IntersectionBuilder, Ray},
     utils::{Mesh, Vector3},
 };
 
 const DEFAULT_ALBEDO: Vector3 = Vector3::new(1., 1., 1.);
+const DEFAULT_MIRROR: bool = false;
 
 pub struct MeshObject {
     mesh: Mesh,
     albedo: Vector3,
+    mirror: bool,
+    bounding_box: BoundingBox,
 }
 
 pub struct MeshObjectBuilder {
     mesh: Mesh,
     albedo: Vector3,
+    mirror: bool,
 }
 
 impl MeshObjectBuilder {
@@ -20,6 +24,7 @@ impl MeshObjectBuilder {
         MeshObjectBuilder {
             mesh: mesh.clone(),
             albedo: DEFAULT_ALBEDO,
+            mirror: DEFAULT_MIRROR,
         }
     }
 
@@ -47,12 +52,18 @@ impl MeshObjectBuilder {
         MeshObject {
             mesh: self.mesh.clone(),
             albedo: self.albedo,
+            mirror: self.mirror,
+            bounding_box: BoundingBox::new(&self.mesh),
         }
     }
 }
 
 impl Intersectable for MeshObject {
     fn intersect(&self, ray: &Ray) -> Option<Intersection> {
+        if self.bounding_box.intersect(ray).is_none() {
+            return None;
+        }
+
         let u = *ray.get_direction();
         let o = *ray.get_origin();
 

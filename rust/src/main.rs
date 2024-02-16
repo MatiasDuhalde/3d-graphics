@@ -62,7 +62,11 @@ fn main() {
         // .add_light_source(Box::new(_point_light_source))
         .add_light_source(Box::new(light_sphere));
 
-    let camera = Camera::new(Vector3::new(0., 0., 55.), 75. * PI / 180.);
+    let camera = Camera::new(
+        Vector3::new(0., 0., 55.),
+        Vector3::new(0., 0., 0.),
+        75. * PI / 180.,
+    );
 
     let mut image = Image::new(512, 512, camera, scene);
 

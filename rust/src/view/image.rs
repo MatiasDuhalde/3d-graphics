@@ -111,10 +111,56 @@ impl Image {
     }
 
     fn calculate_pixel_position(&self, i: usize, j: usize) -> Vector3 {
-        let x = (j as f64 + 0.5) - (self.width as f64 / 2.);
-        let y = -((i as f64 + 0.5) - (self.height as f64 / 2.));
-        let z = -(self.width as f64 / (2. * (self.camera.get_fov() / 2.).tan()));
-        Vector3::new(x, y, z) + *self.camera.get_position()
+        let camera_position = *self.camera.get_position();
+        let camera_rotation = *self.camera.get_rotation();
+
+        let aspect_ratio = self.width as f64 / self.height as f64;
+        let fov = self.camera.get_fov();
+        let x =
+            (2. * (j as f64 + 0.5) / self.width as f64 - 1.) * aspect_ratio * f64::tan(fov / 2.);
+        let y = (1. - 2. * (i as f64 + 0.5) / self.height as f64) * f64::tan(fov / 2.);
+        let z = -1.;
+        let pixel_position = Vector3::new(x, y, z).normalize();
+
+        let rotation_matrix = Vector3::new(
+            Vector3::new(1., 0., 0.),
+            Vector3::new(
+                0.,
+                f64::cos(camera_rotation.x()),
+                -f64::sin(camera_rotation.x()),
+            ),
+            Vector3::new(
+                0.,
+                f64::sin(camera_rotation.x()),
+                f64::cos(camera_rotation.x()),
+            ),
+        ) * Vector3::new(
+            Vector3::new(
+                f64::cos(camera_rotation.y()),
+                0.,
+                f64::sin(camera_rotation.y()),
+            ),
+            Vector3::new(0., 1., 0.),
+            Vector3::new(
+                -f64::sin(camera_rotation.y()),
+                0.,
+                f64::cos(camera_rotation.y()),
+            ),
+        ) * Vector3::new(
+            Vector3::new(
+                f64::cos(camera_rotation.z()),
+                -f64::sin(camera_rotation.z()),
+                0.,
+            ),
+            Vector3::new(
+                f64::sin(camera_rotation.z()),
+                f64::cos(camera_rotation.z()),
+                0.,
+            ),
+            Vector3::new(0., 0., 1.),
+        );
+
+        rotation_matrix * pixel_position + camera_position
     }
 
     pub fn save(&self, filename: &str) {

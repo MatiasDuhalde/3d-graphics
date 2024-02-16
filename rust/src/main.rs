@@ -63,9 +63,9 @@ fn spheres_image() -> Image {
         .add_light_source(Box::new(light_sphere));
 
     let camera = Camera::new(
-        Vector3::new(-30., 30., 20.),
-        Vector3::new(0.5, 0., 5. * PI / 4.),
-        90. * PI / 180.,
+        Vector3::new(0., 55., 0.),
+        Vector3::new(0., 0., PI),
+        75. * PI / 180.,
     );
 
     Image::new(512, 512, camera, scene)
@@ -79,7 +79,7 @@ fn cat_image() -> Image {
         .with_rotation(Vector3::new(PI / 2., 0., PI / 2.))
         .with_translation(Vector3::new(0., 0., -21.5))
         .with_scale(1.2)
-        .with_albedo(Vector3::new(0.71764705882, 0.25490196078, 0.05490196078))
+        .with_color(Vector3::new(0.71764705882, 0.25490196078, 0.05490196078))
         .build();
 
     let light_source = PointLightSource::new(Vector3::new(0., 55., 0.), 5E9);
@@ -108,7 +108,7 @@ fn spinning_cat() {
             .with_rotation(Vector3::new(PI / 2., 0., PI / 2. + theta as f64 * PI / 8.))
             .with_translation(Vector3::new(0., 0., -21.5))
             .with_scale(1.2)
-            .with_albedo(Vector3::new(0.71764705882, 0.25490196078, 0.05490196078))
+            .with_color(Vector3::new(0.71764705882, 0.25490196078, 0.05490196078))
             .build();
 
         let light_source = PointLightSource::new(Vector3::new(0., 55., 0.), 5E9);

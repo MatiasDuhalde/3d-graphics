@@ -4,19 +4,16 @@ use crate::{
 };
 
 const DEFAULT_ALBEDO: Vector3 = Vector3::new(1., 1., 1.);
-const DEFAULT_MIRROR: bool = false;
 
 pub struct MeshObject {
     mesh: Mesh,
-    albedo: Vector3,
-    mirror: bool,
-    bounding_box: BoundingBox,
+    color: Vector3,
+    // bounding_box: BoundingBox,
 }
 
 pub struct MeshObjectBuilder {
     mesh: Mesh,
     albedo: Vector3,
-    mirror: bool,
 }
 
 impl MeshObjectBuilder {
@@ -24,11 +21,10 @@ impl MeshObjectBuilder {
         MeshObjectBuilder {
             mesh: mesh.clone(),
             albedo: DEFAULT_ALBEDO,
-            mirror: DEFAULT_MIRROR,
         }
     }
 
-    pub fn with_albedo(&mut self, albedo: Vector3) -> &mut Self {
+    pub fn with_color(&mut self, albedo: Vector3) -> &mut Self {
         self.albedo = albedo;
         self
     }
@@ -51,18 +47,17 @@ impl MeshObjectBuilder {
     pub fn build(&self) -> MeshObject {
         MeshObject {
             mesh: self.mesh.clone(),
-            albedo: self.albedo,
-            mirror: self.mirror,
-            bounding_box: BoundingBox::new(&self.mesh),
+            color: self.albedo,
+            // bounding_box: BoundingBox::new(&self.mesh),
         }
     }
 }
 
 impl Intersectable for MeshObject {
     fn intersect(&self, ray: &Ray) -> Option<Intersection> {
-        if self.bounding_box.intersect(ray).is_none() {
-            return None;
-        }
+        // if self.bounding_box.intersect(ray).is_none() {
+        //     return None;
+        // }
 
         let u = *ray.get_direction();
         let o = *ray.get_origin();
@@ -87,7 +82,7 @@ impl Intersectable for MeshObject {
                 let normal = n.normalized();
 
                 let intersection = IntersectionBuilder::new(p, normal, t)
-                    .with_albedo(self.albedo)
+                    .with_albedo(self.color)
                     .build();
 
                 if closest_intersection.is_some() {

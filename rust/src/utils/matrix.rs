@@ -174,6 +174,28 @@ impl Neg for Matrix {
     }
 }
 
+pub fn calculate_rotation_matrix(rotation: Vector3) -> Matrix {
+    let x = rotation.x();
+    let y = rotation.y();
+    let z = rotation.z();
+    let x_rotation_matrix = Matrix::new(
+        Vector3::new(1., 0., 0.),
+        Vector3::new(0., x.cos(), -x.sin()),
+        Vector3::new(0., x.sin(), x.cos()),
+    );
+    let y_rotation_matrix = Matrix::new(
+        Vector3::new(y.cos(), 0., y.sin()),
+        Vector3::new(0., 1., 0.),
+        Vector3::new(-y.sin(), 0., y.cos()),
+    );
+    let z_rotation_matrix = Matrix::new(
+        Vector3::new(z.cos(), -z.sin(), 0.),
+        Vector3::new(z.sin(), z.cos(), 0.),
+        Vector3::new(0., 0., 1.),
+    );
+    z_rotation_matrix * y_rotation_matrix * x_rotation_matrix
+}
+
 impl fmt::Display for Matrix {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(

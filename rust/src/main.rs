@@ -4,14 +4,14 @@ mod view;
 
 use {
     crate::{
-        core::{PointLightSource, Scene, SphereBuilder},
-        utils::Vector3,
+        core::{MeshObjectBuilder, PointLightSource, Scene, SphereBuilder},
+        utils::{Mesh, Vector3},
         view::{Camera, Image},
     },
     std::f64::consts::PI,
 };
 
-fn main() {
+fn spheres_image() -> Image {
     let mirror_sphere = SphereBuilder::new(Vector3::new(-25., 0., 0.), 10.)
         .with_mirror(true)
         .build();
@@ -46,8 +46,6 @@ fn main() {
         .with_color(Vector3::new(1., 0., 1.))
         .build();
 
-    let _point_light_source = PointLightSource::new(Vector3::new(-10., 40., 20.), 5E9);
-
     let mut scene = Scene::new();
 
     scene
@@ -61,7 +59,6 @@ fn main() {
         .add_object(Box::new(down_sphere))
         .add_object(Box::new(front_sphere))
         .add_object(Box::new(back_sphere))
-        // .add_light_source(Box::new(_point_light_source))
         .add_light_source(Box::new(light_sphere));
 
     let camera = Camera::new(
@@ -70,7 +67,38 @@ fn main() {
         90. * PI / 180.,
     );
 
-    let mut image = Image::new(512, 512, camera, scene);
+    Image::new(512, 512, camera, scene)
+}
+
+fn cat_image() -> Image {
+    let cat_mesh = Mesh::from_obj_file("assets/cat/cat.obj");
+
+    let cat_object = MeshObjectBuilder::new(&cat_mesh)
+        .with_rotation(Vector3::new(PI / 2., 0., PI / 2.))
+        .with_translation(Vector3::new(0., 0., -21.5))
+        .with_scale(1.2)
+        .with_albedo(Vector3::new(0.71764705882, 0.25490196078, 0.05490196078))
+        .build();
+
+    let light_source = PointLightSource::new(Vector3::new(0., 55., 0.), 5E9);
+
+    let mut scene = Scene::new();
+
+    scene
+        .add_object(Box::new(cat_object))
+        .add_light_source(Box::new(light_source));
+
+    let camera = Camera::new(
+        Vector3::new(0., 55., 0.),
+        Vector3::new(0., 0., PI),
+        75. * PI / 180.,
+    );
+
+    Image::new(512, 512, camera, scene)
+}
+
+fn main() {
+    let mut image = cat_image();
 
     image.draw();
 

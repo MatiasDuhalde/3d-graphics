@@ -1,11 +1,13 @@
-use {crate::utils::Vector3, std::fs};
+use {super::calculate_rotation_matrix, crate::utils::Vector3, std::fs};
 
+#[derive(Clone)]
 pub struct TriangleIndices {
     pub vertex_indices: [usize; 3],
     pub normal_indices: [usize; 3],
     pub uv_indices: [usize; 3],
 }
 
+#[derive(Clone)]
 pub struct Mesh {
     vertices: Vec<Vector3>,
     normals: Vec<Vector3>,
@@ -14,7 +16,49 @@ pub struct Mesh {
 }
 
 impl Mesh {
-    pub fn read_obj_file(filename: &str) -> Mesh {
+    pub fn get_vertices(&self) -> &Vec<Vector3> {
+        &self.vertices
+    }
+
+    pub fn get_normals(&self) -> &Vec<Vector3> {
+        &self.normals
+    }
+
+    pub fn get_uvs(&self) -> &Vec<Vector3> {
+        &self.uvs
+    }
+
+    pub fn get_triangles(&self) -> &Vec<TriangleIndices> {
+        &self.triangles
+    }
+}
+
+impl Mesh {
+    pub fn translate(&mut self, translation: Vector3) -> &mut Self {
+        for vertex in self.vertices.iter_mut() {
+            *vertex += translation;
+        }
+        self
+    }
+
+    pub fn rotate(&mut self, rotation: Vector3) -> &mut Self {
+        let rotation_matrix = calculate_rotation_matrix(rotation);
+        for vertex in self.vertices.iter_mut() {
+            *vertex = rotation_matrix * *vertex;
+        }
+        self
+    }
+
+    pub fn scale(&mut self, scale: f64) -> &mut Self {
+        for vertex in self.vertices.iter_mut() {
+            *vertex *= scale;
+        }
+        self
+    }
+}
+
+impl Mesh {
+    pub fn from_obj_file(filename: &str) -> Mesh {
         let mut vertices: Vec<Vector3> = Vec::new();
         let mut normals: Vec<Vector3> = Vec::new();
         let mut uvs: Vec<Vector3> = Vec::new();

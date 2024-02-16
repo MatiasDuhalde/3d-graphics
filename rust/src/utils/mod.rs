@@ -10,7 +10,7 @@ pub use {
         FRESNEL_RAYS, GAMMA_CORRECTION, INDIRECT_LIGHTING_RAYS, MAX_RECURSION_DEPTH,
         RAY_OFFSET_EPSILON,
     },
-    matrix::Matrix,
+    matrix::{calculate_rotation_matrix, Matrix},
     mesh::Mesh,
     random::{box_muller, random_cos, random_f64},
     vector3::Vector3,

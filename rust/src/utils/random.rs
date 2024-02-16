@@ -1,7 +1,4 @@
-use rand::Rng;
-use std::f64::consts::PI;
-
-use crate::utils::Vector3;
+use {crate::utils::Vector3, rand::Rng, std::f64::consts::PI};
 
 pub fn random_f64() -> f64 {
     let mut rng = rand::thread_rng();

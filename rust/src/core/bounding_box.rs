@@ -76,7 +76,7 @@ impl Intersectable for BoundingBox {
         let normal_2 = -normal_1;
         let t_2 = (point_e - origin).dot(&normal_2) / direction.dot(&normal_2);
 
-        if t_2 < 0. {
+        if t_2 > 0. {
             let intersection_point_2 = origin + direction * t_2;
 
             if (intersection_point_2.x() > point_e.x() && intersection_point_2.x() < point_h.x())
@@ -104,7 +104,7 @@ impl Intersectable for BoundingBox {
         let normal_4 = -normal_3;
         let t_4 = (point_b - origin).dot(&normal_4) / direction.dot(&normal_4);
 
-        if t_4 < 0. {
+        if t_4 > 0. {
             let intersection_point_4 = origin + direction * t_4;
 
             if (intersection_point_4.y() > point_b.y() && intersection_point_4.y() < point_h.y())
@@ -132,7 +132,7 @@ impl Intersectable for BoundingBox {
         let normal_6 = -normal_5;
         let t_6 = (point_c - origin).dot(&normal_6) / direction.dot(&normal_6);
 
-        if t_6 < 0. {
+        if t_6 > 0. {
             let intersection_point_6 = origin + direction * t_6;
 
             if (intersection_point_6.x() > point_c.x() && intersection_point_6.x() < point_h.x())

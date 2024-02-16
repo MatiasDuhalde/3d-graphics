@@ -1,0 +1,98 @@
+{
+  "tasks": [
+    {
+      "type": "cppbuild",
+      "label": "Build optimized app (clang/LLVM)",
+      "command": "clang++",
+      "detail": "Build the optimized engine",
+      "args": [
+        "-std=c++2b",
+        "-Wall",
+        "-Fcolor-diagnostics",
+        "-g",
+        "main.cpp",
+        "-o",
+        "main.out",
+        "-pthread",
+        "-fopenmp",
+        "-O3"
+      ],
+      "problemMatcher": ["$gcc"],
+      "hide": false,
+      "isBackground": false,
+      "icon": {
+        "color": "terminal.ansiWhite",
+        "id": "wrench"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "type": "cppbuild",
+      "label": "Build debug app (clang/LLVM)",
+      "command": "clang++",
+      "detail": "Build the debug engine",
+      "args": [
+        "-std=c++2b",
+        "-Wall",
+        "-Fcolor-diagnostics",
+        "-g",
+        "main.cpp",
+        "-o",
+        "main.out",
+        "-pthread"
+      ],
+      "problemMatcher": ["$gcc"],
+      "hide": false,
+      "isBackground": false,
+      "icon": {
+        "color": "terminal.ansiWhite",
+        "id": "wrench"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "type": "cppbuild",
+      "label": "Build profiling app (clang/LLVM)",
+      "command": "clang++",
+      "detail": "Build the debug engine",
+      "args": [
+        "-std=c++2b",
+        "-Wall",
+        "-Fcolor-diagnostics",
+        "-pg",
+        "main.cpp",
+        "-o",
+        "main.out",
+        "-pthread",
+        "-O3"
+      ],
+      "problemMatcher": ["$gcc"],
+      "hide": false,
+      "isBackground": false,
+      "icon": {
+        "color": "terminal.ansiWhite",
+        "id": "wrench"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    }
+  ],
+  "version": "2.0.0"
+}

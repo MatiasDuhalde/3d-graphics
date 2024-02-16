@@ -3,9 +3,11 @@ mod utils;
 mod view;
 
 use {
-    crate::core::{PointLightSource, Scene, SphereBuilder},
-    crate::utils::Vector3,
-    crate::view::{Camera, Image},
+    crate::{
+        core::{PointLightSource, Scene, SphereBuilder},
+        utils::Vector3,
+        view::{Camera, Image},
+    },
     std::f64::consts::PI,
 };
 
@@ -20,7 +22,7 @@ fn main() {
         .with_transparent(true)
         .with_refractive_index(1.5)
         .build();
-    let light_sphere = SphereBuilder::new(Vector3::new(-10., 25., -10.), 5.)
+    let light_sphere = SphereBuilder::new(Vector3::new(-10., -10., 25.), 5.)
         .with_light(true)
         .with_light_intensity(5E9)
         .build();
@@ -31,20 +33,20 @@ fn main() {
     let right_sphere = SphereBuilder::new(Vector3::new(1000., 0., 0.), 940.)
         .with_color(Vector3::new(1., 1., 0.))
         .build();
-    let up_sphere = SphereBuilder::new(Vector3::new(0., 1000., 0.), 940.)
+    let up_sphere = SphereBuilder::new(Vector3::new(0., 0., 1000.), 940.)
         .with_color(Vector3::new(1., 0., 0.))
         .build();
-    let down_sphere = SphereBuilder::new(Vector3::new(0., -1000., 0.), 990.)
+    let down_sphere = SphereBuilder::new(Vector3::new(0., 0., -1000.), 990.)
         .with_color(Vector3::new(0., 0., 1.))
         .build();
-    let front_sphere = SphereBuilder::new(Vector3::new(0., 0., 1000.), 940.)
+    let front_sphere = SphereBuilder::new(Vector3::new(0., 1000., 0.), 940.)
         .with_color(Vector3::new(0., 1., 0.))
         .build();
-    let back_sphere = SphereBuilder::new(Vector3::new(0., 0., -1000.), 940.)
+    let back_sphere = SphereBuilder::new(Vector3::new(0., -1000., 0.), 940.)
         .with_color(Vector3::new(1., 0., 1.))
         .build();
 
-    let _point_light_source = PointLightSource::new(Vector3::new(-10., 20., 40.), 5E9);
+    let _point_light_source = PointLightSource::new(Vector3::new(-10., 40., 20.), 5E9);
 
     let mut scene = Scene::new();
 
@@ -63,9 +65,9 @@ fn main() {
         .add_light_source(Box::new(light_sphere));
 
     let camera = Camera::new(
-        Vector3::new(0., 0., 55.),
-        Vector3::new(0., 0., 0.),
-        75. * PI / 180.,
+        Vector3::new(-30., 30., 20.),
+        Vector3::new(0.5, 0., 5. * PI / 4.),
+        90. * PI / 180.,
     );
 
     let mut image = Image::new(512, 512, camera, scene);

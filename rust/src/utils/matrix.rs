@@ -6,6 +6,7 @@ use {
     },
 };
 
+#[derive(Clone, Copy)]
 pub struct Matrix {
     a: Vector3,
     b: Vector3,
@@ -50,6 +51,16 @@ impl Add for Matrix {
     }
 }
 
+impl AddAssign for Matrix {
+    fn add_assign(&mut self, other: Self) {
+        *self = Self {
+            a: self.a + other.a,
+            b: self.b + other.b,
+            c: self.c + other.c,
+        };
+    }
+}
+
 impl Sub for Matrix {
     type Output = Self;
 
@@ -62,27 +73,13 @@ impl Sub for Matrix {
     }
 }
 
-impl Mul<f64> for Matrix {
-    type Output = Self;
-
-    fn mul(self, scalar: f64) -> Self {
-        Self {
-            a: self.a * scalar,
-            b: self.b * scalar,
-            c: self.c * scalar,
-        }
-    }
-}
-
-impl Div<f64> for Matrix {
-    type Output = Self;
-
-    fn div(self, scalar: f64) -> Self {
-        Self {
-            a: self.a / scalar,
-            b: self.b / scalar,
-            c: self.c / scalar,
-        }
+impl SubAssign for Matrix {
+    fn sub_assign(&mut self, other: Self) {
+        *self = Self {
+            a: self.a - other.a,
+            b: self.b - other.b,
+            c: self.c - other.c,
+        };
     }
 }
 
@@ -109,23 +106,27 @@ impl Mul for Matrix {
     }
 }
 
-impl AddAssign for Matrix {
-    fn add_assign(&mut self, other: Self) {
-        *self = Self {
-            a: self.a + other.a,
-            b: self.b + other.b,
-            c: self.c + other.c,
-        };
+impl Mul<f64> for Matrix {
+    type Output = Self;
+
+    fn mul(self, scalar: f64) -> Self {
+        Self {
+            a: self.a * scalar,
+            b: self.b * scalar,
+            c: self.c * scalar,
+        }
     }
 }
 
-impl SubAssign for Matrix {
-    fn sub_assign(&mut self, other: Self) {
-        *self = Self {
-            a: self.a - other.a,
-            b: self.b - other.b,
-            c: self.c - other.c,
-        };
+impl Mul<Vector3> for Matrix {
+    type Output = Vector3;
+
+    fn mul(self, vector: Vector3) -> Vector3 {
+        Vector3::new(
+            self.a.x() * vector.x() + self.a.y() * vector.y() + self.a.z() * vector.z(),
+            self.b.x() * vector.x() + self.b.y() * vector.y() + self.b.z() * vector.z(),
+            self.c.x() * vector.x() + self.c.y() * vector.y() + self.c.z() * vector.z(),
+        )
     }
 }
 
@@ -136,6 +137,18 @@ impl MulAssign<f64> for Matrix {
             b: self.b * scalar,
             c: self.c * scalar,
         };
+    }
+}
+
+impl Div<f64> for Matrix {
+    type Output = Self;
+
+    fn div(self, scalar: f64) -> Self {
+        Self {
+            a: self.a / scalar,
+            b: self.b / scalar,
+            c: self.c / scalar,
+        }
     }
 }
 
@@ -158,16 +171,6 @@ impl Neg for Matrix {
             b: -self.b,
             c: -self.c,
         }
-    }
-}
-
-impl fmt::Debug for Matrix {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "Matrix {{\n  a: {:?},\n  b: {:?},\n  c: {:?}\n}}",
-            self.a, self.b, self.c
-        )
     }
 }
 

@@ -57,4 +57,28 @@ impl Ray {
             self.refractive_index,
         )
     }
+
+    pub fn calculate_refracted_ray(
+        &self,
+        intersection_point: &Vector3,
+        normal: &Vector3,
+        n2: f64,
+    ) -> Self {
+        let n = self.get_refractive_index() / n2;
+
+        let cos_i = self.get_direction().dot(normal);
+        let sin2_transmitted = n * n * (1. - cos_i * cos_i);
+
+        if sin2_transmitted > 1. {
+            self.calculate_reflected_ray(intersection_point, normal)
+        } else {
+            let cos_transmitted = (1. - sin2_transmitted).sqrt();
+
+            let refracted_normal = *normal * cos_transmitted;
+            let refracted_tangent = (*self.get_direction() - *normal * cos_i) * n;
+            let refracted_direction = (refracted_tangent + refracted_normal).normalize();
+
+            Ray::new_with_refractive_index(*intersection_point, refracted_direction, n2)
+        }
+    }
 }

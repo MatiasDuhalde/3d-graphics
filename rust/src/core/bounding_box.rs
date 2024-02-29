@@ -1,6 +1,6 @@
 use crate::{
-    core::{Intersectable, Intersection, IntersectionBuilder, Ray},
-    utils::{Mesh, Vector3},
+    core::{Intersectable, Intersection, Mesh, Ray},
+    utils::Vector3,
 };
 
 pub struct BoundingBox {
@@ -9,7 +9,7 @@ pub struct BoundingBox {
 }
 
 impl BoundingBox {
-    pub fn new(mesh: &Mesh) -> BoundingBox {
+    pub fn new_from_mesh(mesh: &Mesh) -> BoundingBox {
         let mut min_x = f64::INFINITY;
         let mut min_y = f64::INFINITY;
         let mut min_z = f64::INFINITY;
@@ -60,7 +60,8 @@ impl Intersectable for BoundingBox {
         let direction = *ray.get_direction();
 
         let normal_1 = (point_b - point_a).cross(&(point_c - point_a));
-        let t_1 = (point_a - origin).dot(&normal_1) / direction.dot(&normal_1);
+        let direction_dot_normal_1 = direction.dot(&normal_1);
+        let t_1 = (point_a - origin).dot(&normal_1) / direction_dot_normal_1;
 
         if t_1 > 0. {
             let intersection_point_1 = origin + direction * t_1;
@@ -69,12 +70,20 @@ impl Intersectable for BoundingBox {
                 && (intersection_point_1.z() > point_a.z()
                     && intersection_point_1.z() < point_d.z())
             {
-                return Some(IntersectionBuilder::new(intersection_point_1, normal_1, t_1).build());
+                return Some(Intersection::new(
+                    intersection_point_1,
+                    normal_1,
+                    t_1,
+                    direction_dot_normal_1 < 0.,
+                    None,
+                    ray.clone(),
+                ));
             }
         }
 
         let normal_2 = -normal_1;
-        let t_2 = (point_e - origin).dot(&normal_2) / direction.dot(&normal_2);
+        let direction_dot_normal_2 = direction.dot(&normal_2);
+        let t_2 = (point_e - origin).dot(&normal_2) / direction_dot_normal_2;
 
         if t_2 > 0. {
             let intersection_point_2 = origin + direction * t_2;
@@ -83,12 +92,20 @@ impl Intersectable for BoundingBox {
                 && (intersection_point_2.z() > point_e.z()
                     && intersection_point_2.z() < point_h.z())
             {
-                return Some(IntersectionBuilder::new(intersection_point_2, normal_2, t_2).build());
+                return Some(Intersection::new(
+                    intersection_point_2,
+                    normal_2,
+                    t_2,
+                    direction_dot_normal_2 < 0.,
+                    None,
+                    ray.clone(),
+                ));
             }
         }
 
         let normal_3 = (point_c - point_a).cross(&(point_e - point_a));
-        let t_3 = (point_a - origin).dot(&normal_3) / direction.dot(&normal_3);
+        let direction_dot_normal_3 = direction.dot(&normal_3);
+        let t_3 = (point_a - origin).dot(&normal_3) / direction_dot_normal_3;
 
         if t_3 > 0. {
             let intersection_point_3 = origin + direction * t_3;
@@ -97,12 +114,20 @@ impl Intersectable for BoundingBox {
                 && (intersection_point_3.z() > point_a.z()
                     && intersection_point_3.z() < point_g.z())
             {
-                return Some(IntersectionBuilder::new(intersection_point_3, normal_3, t_3).build());
+                return Some(Intersection::new(
+                    intersection_point_3,
+                    normal_3,
+                    t_3,
+                    direction_dot_normal_3 < 0.,
+                    None,
+                    ray.clone(),
+                ));
             }
         }
 
         let normal_4 = -normal_3;
-        let t_4 = (point_b - origin).dot(&normal_4) / direction.dot(&normal_4);
+        let direction_dot_normal_4 = direction.dot(&normal_4);
+        let t_4 = (point_b - origin).dot(&normal_4) / direction_dot_normal_4;
 
         if t_4 > 0. {
             let intersection_point_4 = origin + direction * t_4;
@@ -111,12 +136,20 @@ impl Intersectable for BoundingBox {
                 && (intersection_point_4.z() > point_b.z()
                     && intersection_point_4.z() < point_h.z())
             {
-                return Some(IntersectionBuilder::new(intersection_point_4, normal_4, t_4).build());
+                return Some(Intersection::new(
+                    intersection_point_4,
+                    normal_4,
+                    t_4,
+                    direction_dot_normal_4 < 0.,
+                    None,
+                    ray.clone(),
+                ));
             }
         }
 
         let normal_5 = (point_e - point_a).cross(&(point_b - point_a));
-        let t_5 = (point_a - origin).dot(&normal_5) / direction.dot(&normal_5);
+        let direction_dot_normal_5 = direction.dot(&normal_5);
+        let t_5 = (point_a - origin).dot(&normal_5) / direction_dot_normal_5;
 
         if t_5 > 0. {
             let intersection_point_5 = origin + direction * t_5;
@@ -125,12 +158,20 @@ impl Intersectable for BoundingBox {
                 && (intersection_point_5.y() > point_a.y()
                     && intersection_point_5.y() < point_f.y())
             {
-                return Some(IntersectionBuilder::new(intersection_point_5, normal_5, t_5).build());
+                return Some(Intersection::new(
+                    intersection_point_5,
+                    normal_5,
+                    t_5,
+                    direction_dot_normal_5 < 0.,
+                    None,
+                    ray.clone(),
+                ));
             }
         }
 
         let normal_6 = -normal_5;
-        let t_6 = (point_c - origin).dot(&normal_6) / direction.dot(&normal_6);
+        let direction_dot_normal_6 = direction.dot(&normal_6);
+        let t_6 = (point_c - origin).dot(&normal_6) / direction_dot_normal_6;
 
         if t_6 > 0. {
             let intersection_point_6 = origin + direction * t_6;
@@ -139,7 +180,14 @@ impl Intersectable for BoundingBox {
                 && (intersection_point_6.y() > point_c.y()
                     && intersection_point_6.y() < point_h.y())
             {
-                return Some(IntersectionBuilder::new(intersection_point_6, normal_6, t_6).build());
+                return Some(Intersection::new(
+                    intersection_point_6,
+                    normal_6,
+                    t_6,
+                    direction_dot_normal_6 < 0.,
+                    None,
+                    ray.clone(),
+                ));
             }
         }
 

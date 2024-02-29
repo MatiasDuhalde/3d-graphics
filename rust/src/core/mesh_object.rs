@@ -1,46 +1,43 @@
 use crate::{
-    core::{BoundingBox, Intersectable, Intersection, IntersectionBuilder, Ray},
-    utils::{Mesh, Vector3, MESH_EPSILON},
+    core::{BoundingBox, Intersectable, Intersection, Mesh, Object, Ray},
+    utils::Vector3,
 };
 
-const DEFAULT_ALBEDO: Vector3 = Vector3::new(1., 1., 1.);
+const DEFAULT_OPAQUE: bool = false;
+const DEFAULT_COLOR: Vector3 = Vector3::new(1., 1., 1.);
 const DEFAULT_MIRROR: bool = false;
+const DEFAULT_TRANSPARENT: bool = false;
+const DEFAULT_REFRACTIVE_INDEX: f64 = 1.;
 
 pub struct MeshObject {
     mesh: Mesh,
+    opaque: bool,
     color: Vector3,
     mirror: bool,
+    transparent: bool,
+    refractive_index: f64,
     bounding_box: BoundingBox,
 }
 
 pub struct MeshObjectBuilder {
     mesh: Mesh,
-    albedo: Vector3,
+    opaque: bool,
+    color: Vector3,
     mirror: bool,
+    transparent: bool,
+    refractive_index: f64,
 }
 
 impl MeshObjectBuilder {
     pub fn new(mesh: &Mesh) -> Self {
         MeshObjectBuilder {
             mesh: mesh.clone(),
-            albedo: DEFAULT_ALBEDO,
+            opaque: DEFAULT_OPAQUE,
+            color: DEFAULT_COLOR,
             mirror: DEFAULT_MIRROR,
+            transparent: DEFAULT_TRANSPARENT,
+            refractive_index: DEFAULT_REFRACTIVE_INDEX,
         }
-    }
-
-    pub fn with_color(&mut self, albedo: Vector3) -> &mut Self {
-        self.albedo = albedo;
-        self
-    }
-
-    pub fn with_mirror(&mut self, mirror: bool) -> &mut Self {
-        self.mirror = mirror;
-        self
-    }
-
-    pub fn with_rotation(&mut self, rotation: Vector3) -> &mut Self {
-        self.mesh.rotate(rotation);
-        self
     }
 
     pub fn with_scale(&mut self, scale: f64) -> &mut Self {
@@ -53,12 +50,47 @@ impl MeshObjectBuilder {
         self
     }
 
+    pub fn with_rotation(&mut self, rotation: Vector3) -> &mut Self {
+        self.mesh.rotate(rotation);
+        self
+    }
+
+    pub fn with_opaque(&mut self, opaque: bool) -> &mut Self {
+        self.opaque = opaque;
+        self
+    }
+
+    pub fn with_color(&mut self, color: Vector3) -> &mut Self {
+        self.opaque = true;
+        self.color = color;
+        self
+    }
+
+    pub fn with_mirror(&mut self, mirror: bool) -> &mut Self {
+        self.mirror = mirror;
+        self
+    }
+
+    pub fn with_transparent(&mut self, transparent: bool) -> &mut Self {
+        self.transparent = transparent;
+        self
+    }
+
+    pub fn with_refractive_index(&mut self, refractive_index: f64) -> &mut Self {
+        self.transparent = true;
+        self.refractive_index = refractive_index;
+        self
+    }
+
     pub fn build(&self) -> MeshObject {
         MeshObject {
             mesh: self.mesh.clone(),
-            color: self.albedo,
+            opaque: self.opaque,
+            color: self.color,
             mirror: self.mirror,
-            bounding_box: BoundingBox::new(&self.mesh),
+            transparent: self.transparent,
+            refractive_index: self.refractive_index,
+            bounding_box: BoundingBox::new_from_mesh(&self.mesh),
         }
     }
 }
@@ -68,63 +100,44 @@ impl Intersectable for MeshObject {
         if self.bounding_box.intersect(ray).is_none() {
             return None;
         }
+        let intersection = self.mesh.intersect(ray);
 
-        let u = *ray.get_direction();
-        let o = *ray.get_origin();
-
-        let mut closest_intersection: Option<Intersection> = None;
-        for triangle in self.mesh.get_triangles() {
-            let a = self.mesh.get_vertices()[triangle.vertex_indices[0]];
-            let b = self.mesh.get_vertices()[triangle.vertex_indices[1]];
-            let c = self.mesh.get_vertices()[triangle.vertex_indices[2]];
-
-            let e1 = b - a;
-            let e2 = c - a;
-            let n = e1.cross(&e2);
-            let u_dot_n = u.dot(&n);
-            if u_dot_n.abs() < MESH_EPSILON {
-                continue;
-            }
-
-            let a_o = a - o;
-            let a_o_x_u = a_o.cross(&u);
-
-            let beta = e2.dot(&a_o_x_u) / u_dot_n;
-            if beta < 0. || beta > 1. {
-                continue;
-            }
-
-            let gamma = -e1.dot(&a_o_x_u) / u_dot_n;
-            if gamma < 0. || gamma + beta > 1. {
-                continue;
-            }
-
-            let t = a_o.dot(&n) / u.dot(&n);
-
-            if t > MESH_EPSILON {
-                let p = o + u * t;
-                let normal = n.normalized();
-
-                let mut intersection_builder = IntersectionBuilder::new(p, normal, t);
-
-                if self.mirror {
-                    let reflected_ray = ray.calculate_reflected_ray(&p, &normal).add_offset();
-                    intersection_builder.with_reflected_ray(reflected_ray);
-                } else {
-                    intersection_builder.with_albedo(self.color);
-                }
-
-                let intersection = intersection_builder.build();
-
-                if closest_intersection.is_some() {
-                    if t < closest_intersection.as_ref().unwrap().get_distance() {
-                        closest_intersection = Some(intersection);
-                    }
-                } else {
-                    closest_intersection = Some(intersection);
-                }
-            }
+        if intersection.is_some() {
+            let mut intersection = intersection.unwrap();
+            intersection.object = Some(self);
+            Some(intersection)
+        } else {
+            None
         }
-        closest_intersection
+    }
+}
+
+impl Object for MeshObject {
+    fn is_opaque(&self) -> bool {
+        self.opaque
+    }
+
+    fn is_mirror(&self) -> bool {
+        self.mirror
+    }
+
+    fn is_transparent(&self) -> bool {
+        self.transparent
+    }
+
+    fn is_light_source(&self) -> bool {
+        false
+    }
+
+    fn get_color(&self) -> &Vector3 {
+        &self.color
+    }
+
+    fn get_refractive_index(&self) -> f64 {
+        self.refractive_index
+    }
+
+    fn get_light_intensity(&self) -> f64 {
+        0.
     }
 }

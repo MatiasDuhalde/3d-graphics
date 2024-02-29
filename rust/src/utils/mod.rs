@@ -1,6 +1,5 @@
 mod constants;
 mod matrix;
-mod mesh;
 mod random;
 mod vector3;
 
@@ -11,7 +10,6 @@ pub use {
         RAY_OFFSET_EPSILON,
     },
     matrix::{calculate_rotation_matrix, Matrix},
-    mesh::Mesh,
     random::{box_muller, random_cos, random_f64},
     vector3::Vector3,
 };

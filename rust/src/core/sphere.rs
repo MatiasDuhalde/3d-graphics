@@ -1,11 +1,12 @@
 use {
     crate::{
-        core::{Intersectable, Intersection, IntersectionBuilder, LightSource, Ray},
+        core::{Intersectable, Intersection, LightSource, Object, Ray},
         utils::{random_cos, Vector3},
     },
     std::f64::consts::PI,
 };
 
+const DEFAULT_OPAQUE: bool = false;
 const DEFAULT_COLOR: Vector3 = Vector3::new(1., 1., 1.);
 const DEFAULT_MIRROR: bool = false;
 const DEFAULT_TRANSPARENT: bool = false;
@@ -17,6 +18,7 @@ const DEFAULT_LIGHT_INTENSITY: f64 = 0.;
 pub struct Sphere {
     center: Vector3,
     radius: f64,
+    opaque: bool,
     color: Vector3,
     mirror: bool,
     transparent: bool,
@@ -28,6 +30,7 @@ pub struct Sphere {
 pub struct SphereBuilder {
     center: Vector3,
     radius: f64,
+    opaque: bool,
     color: Vector3,
     mirror: bool,
     transparent: bool,
@@ -41,6 +44,7 @@ impl SphereBuilder {
         SphereBuilder {
             center,
             radius,
+            opaque: DEFAULT_OPAQUE,
             color: DEFAULT_COLOR,
             mirror: DEFAULT_MIRROR,
             transparent: DEFAULT_TRANSPARENT,
@@ -50,7 +54,13 @@ impl SphereBuilder {
         }
     }
 
+    pub fn with_opaque(&mut self, opaque: bool) -> &mut Self {
+        self.opaque = opaque;
+        self
+    }
+
     pub fn with_color(&mut self, color: Vector3) -> &mut Self {
+        self.opaque = true;
         self.color = color;
         self
     }
@@ -66,6 +76,7 @@ impl SphereBuilder {
     }
 
     pub fn with_refractive_index(&mut self, refractive_index: f64) -> &mut Self {
+        self.transparent = true;
         self.refractive_index = refractive_index;
         self
     }
@@ -76,6 +87,7 @@ impl SphereBuilder {
     }
 
     pub fn with_light_intensity(&mut self, light_intensity: f64) -> &mut Self {
+        self.light = true;
         self.light_intensity = light_intensity / (4. * PI * PI * self.radius * self.radius);
         self
     }
@@ -84,6 +96,7 @@ impl SphereBuilder {
         Sphere {
             center: self.center,
             radius: self.radius,
+            opaque: self.opaque,
             color: self.color,
             mirror: self.mirror,
             transparent: self.transparent,
@@ -162,63 +175,45 @@ impl Intersectable for Sphere {
 
         let intersection_point = *ray.get_origin() + *ray.get_direction() * distance;
 
-        let mut normal = self.normal(&intersection_point);
+        let normal = self.normal(&intersection_point);
 
-        let mut intersection_builder =
-            IntersectionBuilder::new(intersection_point, normal, distance);
+        Some(Intersection::new(
+            intersection_point,
+            normal,
+            distance,
+            ray.get_direction().dot(&normal) < 0.,
+            Some(self),
+            ray.clone(),
+        ))
+    }
+}
 
-        if self.light {
-            intersection_builder.with_light_intensity(self.light_intensity);
-        } else if self.mirror {
-            intersection_builder.with_reflected_ray(
-                ray.calculate_reflected_ray(&intersection_point, &normal)
-                    .add_offset(),
-            );
-        } else if self.transparent {
-            // FIXME: Here we assume that the ray is exiting into the air
-            let n1 = ray.get_refractive_index();
-            let mut n2 = 1.0;
-            if ray.get_direction().dot(&normal) < 0. {
-                normal = -normal;
-                n2 = self.refractive_index;
-            }
-            let n = n1 / n2;
+impl Object for Sphere {
+    fn is_opaque(&self) -> bool {
+        self.opaque
+    }
 
-            let cos_i = ray.get_direction().dot(&normal);
-            let sin2_transmitted = n * n * (1. - cos_i * cos_i);
+    fn is_mirror(&self) -> bool {
+        self.mirror
+    }
 
-            if sin2_transmitted > 1. {
-                intersection_builder.with_reflected_ray(
-                    ray.calculate_reflected_ray(&intersection_point, &normal)
-                        .add_offset(),
-                );
-            } else {
-                let cos_transmitted = (1. - sin2_transmitted).sqrt();
+    fn is_transparent(&self) -> bool {
+        self.transparent
+    }
 
-                let refracted_normal = normal * cos_transmitted;
-                let refracted_tangent = (*ray.get_direction() - normal * cos_i) * n;
-                let refracted_direction = (refracted_tangent + refracted_normal).normalize();
+    fn is_light_source(&self) -> bool {
+        self.light
+    }
 
-                let refracted_ray =
-                    Ray::new_with_refractive_index(intersection_point, refracted_direction, n2)
-                        .add_offset();
-                let reflected_ray = ray
-                    .calculate_reflected_ray(&intersection_point, &normal)
-                    .add_offset();
+    fn get_color(&self) -> &Vector3 {
+        &self.color
+    }
 
-                let normal_reflection_coefficient = f64::powi((n1 - n2) / (n1 + n2), 2);
-                let reflection_coefficient = normal_reflection_coefficient
-                    + (1. - normal_reflection_coefficient) * f64::powi(1. - cos_i.abs(), 5);
+    fn get_refractive_index(&self) -> f64 {
+        self.refractive_index
+    }
 
-                intersection_builder
-                    .with_refracted_ray(refracted_ray)
-                    .with_reflected_ray(reflected_ray)
-                    .with_reflection_coefficient(reflection_coefficient);
-            }
-        } else {
-            intersection_builder.with_albedo(self.color);
-        }
-
-        Some(intersection_builder.build())
+    fn get_light_intensity(&self) -> f64 {
+        self.light_intensity
     }
 }

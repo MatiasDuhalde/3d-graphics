@@ -4,8 +4,8 @@ mod view;
 
 use {
     crate::{
-        core::{MeshObjectBuilder, PointLightSource, Scene, SphereBuilder},
-        utils::{Mesh, Vector3},
+        core::{Mesh, MeshObjectBuilder, PointLightSource, Scene, SphereBuilder},
+        utils::Vector3,
         view::{Camera, Image},
     },
     std::f64::consts::PI,
@@ -20,11 +20,9 @@ fn spheres_image() -> Image {
         .with_color(Vector3::new(1., 0., 0.))
         .build();
     let transparent_sphere = SphereBuilder::new(Vector3::new(0., 0., 0.), 10.)
-        .with_transparent(true)
         .with_refractive_index(1.5)
         .build();
     let light_sphere = SphereBuilder::new(Vector3::new(-10., -10., 25.), 5.)
-        .with_light(true)
         .with_light_intensity(5E9)
         .build();
 
@@ -168,4 +166,8 @@ fn main() {
     image.save("cat.png");
 
     // spinning_cat();
+
+    // let mut image = spheres_image();
+    // image.draw();
+    // image.save("spheres.png");
 }

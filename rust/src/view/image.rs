@@ -1,6 +1,6 @@
 use {
     crate::{
-        core::{Ray, Scene},
+        core::{Intersectable, Ray, Scene},
         utils::{
             box_muller, Vector3, ANTIALIASING_RAYS, ENABLE_ANTIALIASING, ENABLE_FRESNEL,
             ENABLE_INDIRECT_LIGHTING, FRESNEL_RAYS, GAMMA_CORRECTION, INDIRECT_LIGHTING_RAYS,
@@ -127,10 +127,13 @@ impl Image {
     }
 
     pub fn save(&self, filename: &str) {
-        let file = std::fs::File::create(filename).unwrap();
+        let file = std::fs::File::create(filename)
+            .unwrap_or_else(|err| panic!("Error creating file {}: {}", filename, err));
+
         let encoder = png::PngEncoder::new(file);
+
         encoder
             .write_image(&self.data, self.width, self.height, ColorType::Rgb8)
-            .unwrap();
+            .unwrap_or_else(|err| panic!("Error writing image to file {}: {}", filename, err));
     }
 }

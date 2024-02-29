@@ -102,13 +102,10 @@ impl Intersectable for MeshObject {
         }
         let intersection = self.mesh.intersect(ray);
 
-        if intersection.is_some() {
-            let mut intersection = intersection.unwrap();
-            intersection.object = Some(self);
-            Some(intersection)
-        } else {
-            None
-        }
+        intersection.and_then(|mut i| {
+            i.set_object(self);
+            Some(i)
+        })
     }
 }
 

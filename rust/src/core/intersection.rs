@@ -8,7 +8,7 @@ pub struct Intersection<'a> {
     normal: Vector3,
     distance: f64,
     exterior: bool,
-    pub object: Option<&'a dyn Object>,
+    object: Option<&'a dyn Object>,
     source_ray: Ray,
 }
 
@@ -55,6 +55,10 @@ impl<'a> Intersection<'a> {
         &self.source_ray
     }
 
+    pub fn set_object(&mut self, object: &'a dyn Object) {
+        self.object = Some(object);
+    }
+
     pub fn calculate_reflected_ray(&self) -> Ray {
         self.source_ray
             .calculate_reflected_ray(&self.point, &self.normal)
@@ -62,15 +66,12 @@ impl<'a> Intersection<'a> {
     }
 
     pub fn calculate_refracted_ray(&self) -> Ray {
-        let mut normal = self.normal;
+        // FIXME: Here we assume that the ray is exiting into the air
         let mut n2: f64 = 1.;
+        let mut normal = self.normal;
         if self.exterior {
             normal = -normal;
-            n2 = if self.object.is_some() {
-                self.object.unwrap().get_refractive_index()
-            } else {
-                1.
-            };
+            n2 = self.object.map_or(1., |obj| obj.get_refractive_index());
         }
 
         self.source_ray
@@ -86,11 +87,7 @@ impl<'a> Intersection<'a> {
         let mut normal = self.normal;
         if self.exterior {
             normal = -normal;
-            n2 = if self.object.is_some() {
-                self.object.unwrap().get_refractive_index()
-            } else {
-                1.
-            };
+            n2 = self.object.map_or(1., |obj| obj.get_refractive_index());
         }
 
         let cos_i = self.source_ray.get_direction().dot(&normal);

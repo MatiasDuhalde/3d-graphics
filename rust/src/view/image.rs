@@ -79,9 +79,9 @@ impl Image {
             } else {
                 self.calculate_pixel_ray(i, j)
             };
-            let intersection = self.scene.intersect(&ray);
-            if intersection.is_some() {
-                color += self.scene.calculate_color(&intersection.unwrap());
+
+            if let Some(intersection) = self.scene.intersect(&ray) {
+                color += self.scene.calculate_color(&intersection);
             }
         }
         color /= ray_paths as f64;

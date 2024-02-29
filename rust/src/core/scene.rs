@@ -109,13 +109,8 @@ impl Scene {
         depth: i32,
         indirect_light: bool,
     ) -> Vector3 {
-        let reflected_intersection = self.calculate_reflected_intersection(intersection);
-        if reflected_intersection.is_some() {
-            self.calculate_color_recursive(
-                &reflected_intersection.unwrap(),
-                depth + 1,
-                indirect_light,
-            )
+        if let Some(reflected_intersection) = self.calculate_reflected_intersection(intersection) {
+            self.calculate_color_recursive(&reflected_intersection, depth + 1, indirect_light)
         } else {
             Vector3::new(0., 0., 0.)
         }
@@ -140,13 +135,8 @@ impl Scene {
         depth: i32,
         indirect_light: bool,
     ) -> Vector3 {
-        let refracted_intersection = self.calculate_refracted_intersection(intersection);
-        if refracted_intersection.is_some() {
-            self.calculate_color_recursive(
-                &refracted_intersection.unwrap(),
-                depth + 1,
-                indirect_light,
-            )
+        if let Some(refracted_intersection) = self.calculate_refracted_intersection(intersection) {
+            self.calculate_color_recursive(&refracted_intersection, depth + 1, indirect_light)
         } else {
             Vector3::new(0., 0., 0.)
         }
@@ -154,9 +144,10 @@ impl Scene {
 
     fn light_ray_reaches_point(&self, light_ray: &Ray, point: &Vector3) -> bool {
         let intersection = self.intersect(&light_ray);
-        intersection.is_none()
-            || RAY_OFFSET_EPSILON
-                >= (*point - *light_ray.get_origin()).norm() - intersection.unwrap().get_distance()
+
+        !intersection.as_ref().is_some_and(|i| {
+            RAY_OFFSET_EPSILON + i.get_distance() < (*point - *light_ray.get_origin()).norm()
+        })
     }
 
     fn calculate_reflected_intersection(
@@ -181,19 +172,21 @@ impl Scene {
     ) -> Vector3 {
         let reflection_coefficient = intersection.calculate_reflection_coefficient();
         if random_f64() < reflection_coefficient {
-            let reflected_intersection = self.calculate_reflected_intersection(intersection);
-            if reflected_intersection.is_some() {
+            if let Some(reflected_intersection) =
+                self.calculate_reflected_intersection(intersection)
+            {
                 return self.calculate_color_recursive(
-                    &reflected_intersection.unwrap(),
+                    &reflected_intersection,
                     depth + 1,
                     indirect_light,
                 );
             }
         } else {
-            let refracted_intersection = self.calculate_refracted_intersection(intersection);
-            if refracted_intersection.is_some() {
+            if let Some(refracted_intersection) =
+                self.calculate_refracted_intersection(intersection)
+            {
                 return self.calculate_color_recursive(
-                    &refracted_intersection.unwrap(),
+                    &refracted_intersection,
                     depth + 1,
                     indirect_light,
                 );
@@ -209,18 +202,15 @@ impl Scene {
         depth: i32,
     ) -> Vector3 {
         let random_ray = self.calculate_random_normal_hemisphere_ray(intersection);
-        let indirect_intersection = self.intersect(&random_ray);
-        if indirect_intersection.is_some() {
-            let color =
-                self.calculate_color_recursive(&indirect_intersection.unwrap(), depth + 1, true);
-
-            return intersection
+        if let Some(indirect_intersection) = self.intersect(&random_ray) {
+            let color = self.calculate_color_recursive(&indirect_intersection, depth + 1, true);
+            intersection
                 .get_object()
                 .get_color()
-                .hadamard_product(&color);
+                .hadamard_product(&color)
+        } else {
+            Vector3::new(0., 0., 0.)
         }
-
-        Vector3::new(0., 0., 0.)
     }
 
     fn calculate_random_normal_hemisphere_ray(&self, intersection: &Intersection) -> Ray {
@@ -235,14 +225,11 @@ impl Intersectable for Scene {
         let mut intersection: Option<Intersection> = None;
 
         for object in self.objects.iter() {
-            let object_intersection = object.intersect(ray);
-            if object_intersection.is_some() {
-                let intersection_reference = object_intersection.as_ref().unwrap();
-                if intersection.is_none()
-                    || intersection_reference.get_distance()
-                        < intersection.as_ref().unwrap().get_distance()
-                {
-                    intersection = object_intersection;
+            if let Some(object_intersection) = object.intersect(ray) {
+                if intersection.as_ref().map_or(true, |i| {
+                    object_intersection.get_distance() < i.get_distance()
+                }) {
+                    intersection = Some(object_intersection);
                 }
             }
         }

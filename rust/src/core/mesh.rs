@@ -121,24 +121,17 @@ impl Intersectable for Mesh {
                 None
             };
 
-            if intersection.is_some() {
-                let intersection_reference = intersection.as_ref().unwrap();
-                if closest_intersection.is_none()
-                    || intersection_reference.get_distance()
-                        < closest_intersection.as_ref().unwrap().get_distance()
-                {
-                    closest_intersection = intersection;
+            if let Some(intersection) = intersection {
+                if closest_intersection.as_ref().map_or(true, |closest| {
+                    intersection.get_distance() < closest.get_distance()
+                }) {
+                    closest_intersection = Some(intersection);
                 }
             }
         }
         closest_intersection
     }
 }
-
-// impl Intersectable for TriangleIndices {
-//     fn intersect(&self, ray: &Ray) -> Option<Intersection> {
-//     }
-// }
 
 impl Mesh {
     pub fn from_obj_file(filename: &str) -> Mesh {

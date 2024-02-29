@@ -1,7 +1,7 @@
 use {
     crate::{
         core::{Intersectable, Intersection, Ray},
-        utils::{calculate_rotation_matrix, Vector3, MESH_EPSILON},
+        utils::{calculate_rotation_matrix, Vector3, ENABLE_NORMAL_MAPPING, MESH_EPSILON},
     },
     std::fs,
 };
@@ -125,12 +125,26 @@ impl Mesh {
                 continue;
             }
 
+            let alpha = 1. - beta - gamma;
+
             let t = a_o.dot(&n) / u_dot_n;
 
             if t > MESH_EPSILON && t < closest_distance {
                 closest_distance = t;
                 closest_point = o + u * t;
-                closest_normal = n.normalized();
+                closest_normal = if ENABLE_NORMAL_MAPPING {
+                    let normal_indices = triangle.get_normal_indices();
+
+                    let normal_a = self.normals[normal_indices.0];
+                    let normal_b = self.normals[normal_indices.1];
+                    let normal_c = self.normals[normal_indices.2];
+
+                    let shading_normal = alpha * normal_a + beta * normal_b + gamma * normal_c;
+
+                    shading_normal.normalized()
+                } else {
+                    n.normalized()
+                };
                 closest_exterior = u_dot_n < 0.;
             }
         }

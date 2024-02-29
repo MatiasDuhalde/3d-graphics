@@ -32,7 +32,7 @@ impl Intersectable for BVHTree {
 
         let mut nodes_to_visit = vec![&self.root];
 
-        let mut closest_intersection: Option<Intersection<'_>> = None;
+        let mut closest_intersection: Option<Intersection> = None;
 
         while let Some(node) = nodes_to_visit.pop() {
             let bounding_box_intersection = node.bounding_box.intersect(ray);

@@ -114,7 +114,9 @@ fn cat_image() -> Image {
         .with_rotation(Vector3::new(PI / 2., 0., 0.))
         .with_translation(Vector3::new(0., 25., -15.))
         .with_scale(0.6)
-        .with_mirror(true);
+        // .with_mirror(true);
+        // .with_refractive_index(1.5);
+        .with_color(Vector3::new(0.71764705882, 0.25490196078, 0.05490196078));
 
     let cat_object = builder.build();
 

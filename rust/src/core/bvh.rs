@@ -35,31 +35,31 @@ impl Intersectable for BVHTree {
         let mut closest_intersection: Option<Intersection<'_>> = None;
 
         while let Some(node) = nodes_to_visit.pop() {
-            if let Some(bounding_box_intersection) = node.bounding_box.intersect(ray) {
-                if node.is_leaf() {
-                    if closest_intersection.is_none()
-                        || bounding_box_intersection.get_distance()
-                            < closest_intersection.as_ref().unwrap().get_distance()
-                    {
-                        let mesh_intersection = self.mesh.intersect_part(
-                            ray,
-                            node.start_triangle_index,
-                            node.end_triangle_index,
-                        );
+            let bounding_box_intersection = node.bounding_box.intersect(ray);
+            if bounding_box_intersection.is_none() {
+                continue;
+            }
 
-                        if let Some(mesh_intersection) = mesh_intersection {
-                            closest_intersection = Some(mesh_intersection);
-                        }
+            if node.is_leaf() {
+                if let Some(mesh_intersection) = self.mesh.intersect_part(
+                    ray,
+                    node.start_triangle_index,
+                    node.end_triangle_index,
+                ) {
+                    if closest_intersection.as_ref().map_or(true, |closest| {
+                        mesh_intersection.get_distance() < closest.get_distance()
+                    }) {
+                        closest_intersection = Some(mesh_intersection);
                     }
-                    continue;
                 }
+                continue;
+            }
 
-                if let Some(left) = &node.left {
-                    nodes_to_visit.push(left);
-                }
-                if let Some(right) = &node.right {
-                    nodes_to_visit.push(right);
-                }
+            if let Some(left) = &node.left {
+                nodes_to_visit.push(left);
+            }
+            if let Some(right) = &node.right {
+                nodes_to_visit.push(right);
             }
         }
 
@@ -79,6 +79,16 @@ impl BVHNode {
             end_triangle_index,
         );
 
+        if end_triangle_index - start_triangle_index <= MIN_BVH_NODE_SIZE {
+            return BVHNode {
+                bounding_box,
+                left: None,
+                right: None,
+                start_triangle_index,
+                end_triangle_index,
+            };
+        }
+
         let diagonals = bounding_box.calculate_diagonals();
         let longest_axis = diagonals.abs().greatest_component();
         let center = bounding_box.calculate_center();
@@ -93,10 +103,7 @@ impl BVHNode {
             }
         }
 
-        if pivot_index <= start_triangle_index
-            || pivot_index >= end_triangle_index - 1
-            || end_triangle_index - start_triangle_index <= MIN_BVH_NODE_SIZE
-        {
+        if pivot_index == start_triangle_index || pivot_index == end_triangle_index {
             return BVHNode {
                 bounding_box,
                 left: None,

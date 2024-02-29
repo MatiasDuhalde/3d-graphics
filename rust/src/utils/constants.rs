@@ -11,3 +11,4 @@ pub const MIN_BVH_NODE_SIZE: usize = 5;
 pub const ENABLE_FRESNEL: bool = true;
 pub const ENABLE_INDIRECT_LIGHTING: bool = true;
 pub const ENABLE_ANTIALIASING: bool = true;
+pub const ENABLE_NORMAL_MAPPING: bool = true;

@@ -43,6 +43,62 @@ impl BoundingBox {
             max: Vector3::new(max_x, max_y, max_z),
         }
     }
+
+    pub fn new_from_mesh_and_triangle_indices(
+        mesh: &Mesh,
+        start_triangle_index: usize,
+        end_triangle_index: usize,
+    ) -> BoundingBox {
+        let mut min_x = f64::INFINITY;
+        let mut min_y = f64::INFINITY;
+        let mut min_z = f64::INFINITY;
+        let mut max_x = f64::NEG_INFINITY;
+        let mut max_y = f64::NEG_INFINITY;
+        let mut max_z = f64::NEG_INFINITY;
+
+        let triangles_slice = &mesh.get_triangles()[start_triangle_index..end_triangle_index];
+
+        for triangle in triangles_slice {
+            let vertex_indices = triangle.get_vertex_indices();
+
+            for vertex_index in [vertex_indices.0, vertex_indices.1, vertex_indices.2] {
+                let vertex = mesh.get_vertices()[vertex_index];
+
+                if vertex.x() < min_x {
+                    min_x = vertex.x();
+                }
+                if vertex.y() < min_y {
+                    min_y = vertex.y();
+                }
+                if vertex.z() < min_z {
+                    min_z = vertex.z();
+                }
+                if vertex.x() > max_x {
+                    max_x = vertex.x();
+                }
+                if vertex.y() > max_y {
+                    max_y = vertex.y();
+                }
+                if vertex.z() > max_z {
+                    max_z = vertex.z();
+                }
+            }
+        }
+
+        BoundingBox {
+            min: Vector3::new(min_x, min_y, min_z),
+            max: Vector3::new(max_x, max_y, max_z),
+        }
+    }
+
+    /// Return the length of each diagonal
+    pub fn calculate_diagonals(&self) -> Vector3 {
+        self.max - self.min
+    }
+
+    pub fn calculate_center(&self) -> Vector3 {
+        (self.min + self.max) / 2.
+    }
 }
 
 impl Intersectable for BoundingBox {

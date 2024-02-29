@@ -1,5 +1,5 @@
 use crate::{
-    core::{BoundingBox, Intersectable, Intersection, Mesh, Object, Ray},
+    core::{BVHTree, Intersectable, Intersection, Mesh, Object, Ray},
     utils::Vector3,
 };
 
@@ -10,13 +10,12 @@ const DEFAULT_TRANSPARENT: bool = false;
 const DEFAULT_REFRACTIVE_INDEX: f64 = 1.;
 
 pub struct MeshObject {
-    mesh: Mesh,
     opaque: bool,
     color: Vector3,
     mirror: bool,
     transparent: bool,
     refractive_index: f64,
-    bounding_box: BoundingBox,
+    bvh: BVHTree,
 }
 
 pub struct MeshObjectBuilder {
@@ -82,27 +81,22 @@ impl MeshObjectBuilder {
         self
     }
 
-    pub fn build(&self) -> MeshObject {
+    pub fn build(self) -> MeshObject {
+        let bvh = BVHTree::new_from_mesh(self.mesh);
         MeshObject {
-            mesh: self.mesh.clone(),
             opaque: self.opaque,
             color: self.color,
             mirror: self.mirror,
             transparent: self.transparent,
             refractive_index: self.refractive_index,
-            bounding_box: BoundingBox::new_from_mesh(&self.mesh),
+            bvh,
         }
     }
 }
 
 impl Intersectable for MeshObject {
     fn intersect(&self, ray: &Ray) -> Option<Intersection> {
-        if self.bounding_box.intersect(ray).is_none() {
-            return None;
-        }
-        let intersection = self.mesh.intersect(ray);
-
-        intersection.and_then(|mut i| {
+        self.bvh.intersect(ray).and_then(|mut i| {
             i.set_object(self);
             Some(i)
         })

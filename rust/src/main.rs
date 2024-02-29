@@ -74,12 +74,15 @@ fn spinning_cat() {
     let cat_mesh = Mesh::from_obj_file("assets/cat/cat.obj");
 
     for theta in 0..16 {
-        let cat_object = MeshObjectBuilder::new(&cat_mesh)
+        let mut builder = MeshObjectBuilder::new(&cat_mesh);
+
+        builder
             .with_rotation(Vector3::new(PI / 2., 0., PI / 2. + theta as f64 * PI / 8.))
             .with_translation(Vector3::new(0., 0., -21.5))
             .with_scale(0.8)
-            .with_color(Vector3::new(0.71764705882, 0.25490196078, 0.05490196078))
-            .build();
+            .with_color(Vector3::new(0.71764705882, 0.25490196078, 0.05490196078));
+
+        let cat_object = builder.build();
 
         let light_source = PointLightSource::new(Vector3::new(0., 55., 0.), 5E9);
 
@@ -106,13 +109,14 @@ fn spinning_cat() {
 fn cat_image() -> Image {
     let cat_mesh = Mesh::from_obj_file("assets/cat/cat.obj");
 
-    let cat_object = MeshObjectBuilder::new(&cat_mesh)
+    let mut builder = MeshObjectBuilder::new(&cat_mesh);
+    builder
         .with_rotation(Vector3::new(PI / 2., 0., 0.))
         .with_translation(Vector3::new(0., 25., -15.))
         .with_scale(0.6)
-        // .with_color(Vector3::new(0.71764705882, 0.25490196078, 0.05490196078))
-        .with_mirror(true)
-        .build();
+        .with_mirror(true);
+
+    let cat_object = builder.build();
 
     let light_sphere = SphereBuilder::new(Vector3::new(-10., 35., 10.), 2.5)
         .with_light(true)

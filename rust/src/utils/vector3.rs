@@ -1,6 +1,6 @@
 use std::{
     fmt,
-    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign},
+    ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
 #[derive(Clone, Copy)]
@@ -65,6 +65,24 @@ impl Vector3 {
         let mut normalized = *self;
         normalized.normalize();
         normalized
+    }
+
+    pub fn greatest_component(&self) -> usize {
+        if self.x > self.y && self.x > self.z {
+            0
+        } else if self.y > self.x && self.y > self.z {
+            1
+        } else {
+            2
+        }
+    }
+
+    pub fn abs(&self) -> Self {
+        Self {
+            x: self.x.abs(),
+            y: self.y.abs(),
+            z: self.z.abs(),
+        }
     }
 }
 
@@ -172,6 +190,19 @@ impl Neg for Vector3 {
             x: -self.x,
             y: -self.y,
             z: -self.z,
+        }
+    }
+}
+
+impl Index<usize> for Vector3 {
+    type Output = f64;
+
+    fn index(&self, index: usize) -> &f64 {
+        match index {
+            0 => &self.x,
+            1 => &self.y,
+            2 => &self.z,
+            _ => panic!("Index out of bounds"),
         }
     }
 }

@@ -1,5 +1,3 @@
-// ray struct
-
 use crate::utils::{Vector3, RAY_OFFSET_EPSILON};
 
 const DEFAULT_REFRACTIVE_INDEX: f64 = 1.;
@@ -70,6 +68,7 @@ impl Ray {
         let sin2_transmitted = n * n * (1. - cos_i * cos_i);
 
         if sin2_transmitted > 1. {
+            // Total internal reflection
             self.calculate_reflected_ray(intersection_point, normal)
         } else {
             let cos_transmitted = (1. - sin2_transmitted).sqrt();

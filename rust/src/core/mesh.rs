@@ -8,21 +8,21 @@ use {
 
 #[derive(Clone)]
 pub struct TriangleIndices {
-    vertex_indices: [usize; 3],
-    normal_indices: [usize; 3],
-    uv_indices: [usize; 3],
+    vertex_indices: (usize, usize, usize),
+    normal_indices: (usize, usize, usize),
+    uv_indices: (usize, usize, usize),
 }
 
 impl TriangleIndices {
-    pub fn get_vertex_indices(&self) -> [usize; 3] {
+    pub fn get_vertex_indices(&self) -> (usize, usize, usize) {
         self.vertex_indices
     }
 
-    pub fn get_normal_indices(&self) -> [usize; 3] {
+    pub fn get_normal_indices(&self) -> (usize, usize, usize) {
         self.normal_indices
     }
 
-    pub fn get_uv_indices(&self) -> [usize; 3] {
+    pub fn get_uv_indices(&self) -> (usize, usize, usize) {
         self.uv_indices
     }
 }
@@ -42,6 +42,14 @@ impl Mesh {
 
     pub fn get_triangles(&self) -> &Vec<TriangleIndices> {
         &self.triangles
+    }
+
+    pub fn get_triangle(&self, index: usize) -> &TriangleIndices {
+        &self.triangles[index]
+    }
+
+    pub fn swap_triangles(&mut self, i: usize, j: usize) {
+        self.triangles.swap(i, j);
     }
 }
 
@@ -67,20 +75,34 @@ impl Mesh {
         }
         self
     }
-}
 
-impl Intersectable for Mesh {
-    fn intersect(&self, ray: &Ray) -> Option<Intersection> {
-        let mut closest_intersection: Option<Intersection> = None;
-        for triangle in self.triangles.iter() {
-            // let intersection = triangle.intersect(ray);
+    pub fn calculate_triangle_center(&self, triangle: &TriangleIndices) -> Vector3 {
+        let vertex_indices = triangle.get_vertex_indices();
+        let a = self.vertices[vertex_indices.0];
+        let b = self.vertices[vertex_indices.1];
+        let c = self.vertices[vertex_indices.2];
+        (a + b + c) / 3.
+    }
 
+    pub fn intersect_part(
+        &self,
+        ray: &Ray,
+        start_triangle_index: usize,
+        end_triangle_index: usize,
+    ) -> Option<Intersection> {
+        let mut closest_distance = f64::INFINITY;
+        let mut closest_point = Vector3::new(0., 0., 0.);
+        let mut closest_normal = Vector3::new(0., 0., 0.);
+        let mut closest_exterior = true;
+        for triangle in &self.triangles[start_triangle_index..end_triangle_index] {
             let u = *ray.get_direction();
             let o = *ray.get_origin();
 
-            let a = self.vertices[triangle.get_vertex_indices()[0]];
-            let b = self.vertices[triangle.get_vertex_indices()[1]];
-            let c = self.vertices[triangle.get_vertex_indices()[2]];
+            let vertex_indices = triangle.get_vertex_indices();
+
+            let a = self.vertices[vertex_indices.0];
+            let b = self.vertices[vertex_indices.1];
+            let c = self.vertices[vertex_indices.2];
 
             let e1 = b - a;
             let e2 = c - a;
@@ -105,31 +127,32 @@ impl Intersectable for Mesh {
 
             let t = a_o.dot(&n) / u_dot_n;
 
-            let intersection = if t > MESH_EPSILON {
-                let p = o + u * t;
-                let normal = n.normalized();
-
-                Some(Intersection::new(
-                    p,
-                    normal,
-                    t,
-                    u_dot_n < 0.,
-                    None,
-                    ray.clone(),
-                ))
-            } else {
-                None
-            };
-
-            if let Some(intersection) = intersection {
-                if closest_intersection.as_ref().map_or(true, |closest| {
-                    intersection.get_distance() < closest.get_distance()
-                }) {
-                    closest_intersection = Some(intersection);
-                }
+            if t > MESH_EPSILON && t < closest_distance {
+                closest_distance = t;
+                closest_point = o + u * t;
+                closest_normal = n.normalized();
+                closest_exterior = u_dot_n < 0.;
             }
         }
-        closest_intersection
+
+        if closest_distance == f64::INFINITY {
+            None
+        } else {
+            Some(Intersection::new(
+                closest_point,
+                closest_normal,
+                closest_distance,
+                closest_exterior,
+                None,
+                ray.clone(),
+            ))
+        }
+    }
+}
+
+impl Intersectable for Mesh {
+    fn intersect(&self, ray: &Ray) -> Option<Intersection> {
+        self.intersect_part(ray, 0, self.triangles.len())
     }
 }
 
@@ -161,9 +184,9 @@ impl Mesh {
                         normal_indices[i] = face_parts[2].parse::<usize>().unwrap() - 1;
                     }
                     triangles.push(TriangleIndices {
-                        vertex_indices: [vertex_indices[0], vertex_indices[1], vertex_indices[2]],
-                        normal_indices: [normal_indices[0], normal_indices[1], normal_indices[2]],
-                        uv_indices: [uv_indices[0], uv_indices[1], uv_indices[2]],
+                        vertex_indices: (vertex_indices[0], vertex_indices[1], vertex_indices[2]),
+                        normal_indices: (normal_indices[0], normal_indices[1], normal_indices[2]),
+                        uv_indices: (uv_indices[0], uv_indices[1], uv_indices[2]),
                     })
                 }
                 _ => {}

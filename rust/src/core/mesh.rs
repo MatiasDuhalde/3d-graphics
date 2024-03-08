@@ -91,8 +91,11 @@ impl Mesh {
         end_triangle_index: usize,
     ) -> Option<Intersection> {
         let mut closest_distance = f64::INFINITY;
-        let mut closest_point = Vector3::new(0., 0., 0.);
         let mut closest_normal = Vector3::new(0., 0., 0.);
+        let mut closest_triangle = &self.triangles[0];
+        let mut closest_alpha = 0.;
+        let mut closest_beta = 0.;
+        let mut closest_gamma = 0.;
         let mut closest_exterior = true;
         for triangle in &self.triangles[start_triangle_index..end_triangle_index] {
             let u = *ray.get_direction();
@@ -125,38 +128,55 @@ impl Mesh {
                 continue;
             }
 
-            let alpha = 1. - beta - gamma;
-
             let t = a_o.dot(&n) / u_dot_n;
 
             if t > MESH_EPSILON && t < closest_distance {
                 closest_distance = t;
-                closest_point = o + u * t;
-                closest_normal = if ENABLE_NORMAL_MAPPING {
-                    let normal_indices = triangle.get_normal_indices();
-
-                    let normal_a = self.normals[normal_indices.0];
-                    let normal_b = self.normals[normal_indices.1];
-                    let normal_c = self.normals[normal_indices.2];
-
-                    let shading_normal = alpha * normal_a + beta * normal_b + gamma * normal_c;
-
-                    shading_normal.normalized()
-                } else {
-                    n.normalized()
-                };
+                closest_triangle = triangle;
+                closest_alpha = 1. - beta - gamma;
+                closest_beta = beta;
+                closest_gamma = gamma;
                 closest_exterior = u_dot_n < 0.;
+                closest_normal = n;
             }
         }
 
         if closest_distance == f64::INFINITY {
             None
         } else {
+            let distance = closest_distance;
+            let point = *ray.get_origin() + *ray.get_direction() * distance;
+            let normal = if ENABLE_NORMAL_MAPPING {
+                let normal_indices = closest_triangle.get_normal_indices();
+
+                let normal_a = self.normals[normal_indices.0];
+                let normal_b = self.normals[normal_indices.1];
+                let normal_c = self.normals[normal_indices.2];
+
+                let shading_normal =
+                    closest_alpha * normal_a + closest_beta * normal_b + closest_gamma * normal_c;
+
+                shading_normal.normalized()
+            } else {
+                closest_normal.normalized()
+            };
+
+            let uv_indices = closest_triangle.get_uv_indices();
+            let uv_a = self.uvs[uv_indices.0];
+            let uv_b = self.uvs[uv_indices.1];
+            let uv_c = self.uvs[uv_indices.2];
+
+            let mapping_point = closest_alpha * uv_a + closest_beta * uv_b + closest_gamma * uv_c;
+            let map_x = (mapping_point.x() % 1.).abs();
+            let map_y = (mapping_point.y() % 1.).abs();
+            let map_point = Vector3::new(map_x, map_y, 0.);
+
             Some(Intersection::new(
-                closest_point,
-                closest_normal,
-                closest_distance,
+                point,
+                normal,
+                distance,
                 closest_exterior,
+                Some(map_point),
                 None,
                 ray.clone(),
             ))

@@ -8,6 +8,7 @@ pub struct Intersection<'a> {
     normal: Vector3,
     distance: f64,
     exterior: bool,
+    mapping_point: Option<Vector3>,
     object: Option<&'a dyn Object>,
     source_ray: Ray,
 }
@@ -18,6 +19,7 @@ impl<'a> Intersection<'a> {
         normal: Vector3,
         distance: f64,
         exterior: bool,
+        mapping_point: Option<Vector3>,
         object: Option<&'a dyn Object>,
         source_ray: Ray,
     ) -> Intersection {
@@ -25,6 +27,7 @@ impl<'a> Intersection<'a> {
             point,
             normal,
             exterior,
+            mapping_point,
             distance,
             object,
             source_ray,
@@ -45,6 +48,14 @@ impl<'a> Intersection<'a> {
 
     pub fn is_exterior(&self) -> bool {
         self.exterior
+    }
+
+    pub fn get_mapping_point(&self) -> &Vector3 {
+        self.mapping_point.as_ref().unwrap()
+    }
+
+    pub fn calculate_color(&self) -> Vector3 {
+        self.object.unwrap().calculate_color(self)
     }
 
     pub fn get_object(&self) -> &dyn Object {

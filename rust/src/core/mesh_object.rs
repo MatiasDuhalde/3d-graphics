@@ -1,5 +1,5 @@
 use crate::{
-    core::{BVHTree, Intersectable, Intersection, Mesh, Object, Ray},
+    core::{BVHTree, Intersectable, Intersection, Mesh, Object, Ray, Texture},
     utils::Vector3,
 };
 
@@ -8,6 +8,7 @@ const DEFAULT_COLOR: Vector3 = Vector3::new(1., 1., 1.);
 const DEFAULT_MIRROR: bool = false;
 const DEFAULT_TRANSPARENT: bool = false;
 const DEFAULT_REFRACTIVE_INDEX: f64 = 1.;
+const DEFAULT_TEXTURE: Option<Texture> = None;
 
 pub struct MeshObject {
     opaque: bool,
@@ -15,6 +16,7 @@ pub struct MeshObject {
     mirror: bool,
     transparent: bool,
     refractive_index: f64,
+    texture: Option<Texture>,
     bvh: BVHTree,
 }
 
@@ -25,6 +27,7 @@ pub struct MeshObjectBuilder {
     mirror: bool,
     transparent: bool,
     refractive_index: f64,
+    texture: Option<Texture>,
 }
 
 impl MeshObjectBuilder {
@@ -36,6 +39,7 @@ impl MeshObjectBuilder {
             mirror: DEFAULT_MIRROR,
             transparent: DEFAULT_TRANSPARENT,
             refractive_index: DEFAULT_REFRACTIVE_INDEX,
+            texture: DEFAULT_TEXTURE,
         }
     }
 
@@ -81,6 +85,12 @@ impl MeshObjectBuilder {
         self
     }
 
+    pub fn with_texture(&mut self, texture: Texture) -> &mut Self {
+        self.opaque = true;
+        self.texture = Some(texture);
+        self
+    }
+
     pub fn build(self) -> MeshObject {
         let bvh = BVHTree::new_from_mesh(self.mesh);
         MeshObject {
@@ -89,6 +99,7 @@ impl MeshObjectBuilder {
             mirror: self.mirror,
             transparent: self.transparent,
             refractive_index: self.refractive_index,
+            texture: self.texture,
             bvh,
         }
     }
@@ -122,6 +133,17 @@ impl Object for MeshObject {
 
     fn get_color(&self) -> &Vector3 {
         &self.color
+    }
+
+    fn calculate_color(&self, intersection: &Intersection) -> Vector3 {
+        if self.texture.is_some() {
+            self.texture
+                .as_ref()
+                .unwrap()
+                .get_color(intersection.get_mapping_point())
+        } else {
+            self.color
+        }
     }
 
     fn get_refractive_index(&self) -> f64 {

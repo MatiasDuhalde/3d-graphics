@@ -80,7 +80,7 @@ impl Scene {
             light_source.calculate_lambertian_shading(
                 intersection.get_point(),
                 intersection.get_normal(),
-                intersection.get_object().get_color(),
+                &intersection.calculate_color(),
                 &light_ray,
             )
         } else {

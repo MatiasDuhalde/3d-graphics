@@ -1,4 +1,7 @@
-use crate::{core::Intersectable, utils::Vector3};
+use crate::{
+    core::{Intersectable, Intersection},
+    utils::Vector3,
+};
 
 pub trait Object: Sync + Send + Intersectable {
     fn is_opaque(&self) -> bool;
@@ -10,6 +13,8 @@ pub trait Object: Sync + Send + Intersectable {
     fn is_light_source(&self) -> bool;
 
     fn get_color(&self) -> &Vector3;
+
+    fn calculate_color(&self, intersection: &Intersection) -> Vector3;
 
     fn get_refractive_index(&self) -> f64;
 

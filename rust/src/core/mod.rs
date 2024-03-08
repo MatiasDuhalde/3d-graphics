@@ -10,10 +10,11 @@ mod point_light_source;
 mod ray;
 mod scene;
 mod sphere;
+mod texture;
 
 pub use {
     bounding_box::BoundingBox, bvh::BVHNode, bvh::BVHTree, intersectable::Intersectable,
     intersection::Intersection, light_source::LightSource, mesh::Mesh, mesh::TriangleIndices,
     mesh_object::MeshObjectBuilder, object::Object, point_light_source::PointLightSource, ray::Ray,
-    scene::Scene, sphere::SphereBuilder,
+    scene::Scene, sphere::SphereBuilder, texture::Texture,
 };

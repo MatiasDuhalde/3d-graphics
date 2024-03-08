@@ -8,7 +8,7 @@ pub const INDIRECT_LIGHTING_RAYS: i32 = 256;
 pub const ANTIALIASING_RAYS: i32 = 32;
 pub const MIN_BVH_NODE_SIZE: usize = 5;
 
-pub const ENABLE_FRESNEL: bool = true;
-pub const ENABLE_INDIRECT_LIGHTING: bool = true;
-pub const ENABLE_ANTIALIASING: bool = true;
-pub const ENABLE_NORMAL_MAPPING: bool = true;
+pub const ENABLE_FRESNEL: bool = false;
+pub const ENABLE_INDIRECT_LIGHTING: bool = false;
+pub const ENABLE_ANTIALIASING: bool = false;
+pub const ENABLE_NORMAL_MAPPING: bool = false;

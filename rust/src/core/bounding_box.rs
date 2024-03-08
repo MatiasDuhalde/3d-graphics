@@ -132,6 +132,7 @@ impl Intersectable for BoundingBox {
                     t_1,
                     direction_dot_normal_1 < 0.,
                     None,
+                    None,
                     ray.clone(),
                 ));
             }
@@ -153,6 +154,7 @@ impl Intersectable for BoundingBox {
                     normal_2,
                     t_2,
                     direction_dot_normal_2 < 0.,
+                    None,
                     None,
                     ray.clone(),
                 ));
@@ -176,6 +178,7 @@ impl Intersectable for BoundingBox {
                     t_3,
                     direction_dot_normal_3 < 0.,
                     None,
+                    None,
                     ray.clone(),
                 ));
             }
@@ -197,6 +200,7 @@ impl Intersectable for BoundingBox {
                     normal_4,
                     t_4,
                     direction_dot_normal_4 < 0.,
+                    None,
                     None,
                     ray.clone(),
                 ));
@@ -220,6 +224,7 @@ impl Intersectable for BoundingBox {
                     t_5,
                     direction_dot_normal_5 < 0.,
                     None,
+                    None,
                     ray.clone(),
                 ));
             }
@@ -241,6 +246,7 @@ impl Intersectable for BoundingBox {
                     normal_6,
                     t_6,
                     direction_dot_normal_6 < 0.,
+                    None,
                     None,
                     ray.clone(),
                 ));

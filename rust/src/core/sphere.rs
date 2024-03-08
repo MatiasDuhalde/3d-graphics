@@ -182,6 +182,7 @@ impl Intersectable for Sphere {
             normal,
             distance,
             ray.get_direction().dot(&normal) < 0.,
+            None,
             Some(self),
             ray.clone(),
         ))
@@ -207,6 +208,10 @@ impl Object for Sphere {
 
     fn get_color(&self) -> &Vector3 {
         &self.color
+    }
+
+    fn calculate_color(&self, _intersection: &Intersection) -> Vector3 {
+        self.color
     }
 
     fn get_refractive_index(&self) -> f64 {

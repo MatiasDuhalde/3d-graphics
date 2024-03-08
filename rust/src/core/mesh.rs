@@ -3,7 +3,7 @@ use {
         core::{Intersectable, Intersection, Ray},
         utils::{calculate_rotation_matrix, Vector3, ENABLE_NORMAL_MAPPING, MESH_EPSILON},
     },
-    std::fs,
+    std::{fs, net},
 };
 
 #[derive(Clone)]
@@ -65,6 +65,9 @@ impl Mesh {
         let rotation_matrix = calculate_rotation_matrix(rotation);
         for vertex in self.vertices.iter_mut() {
             *vertex = rotation_matrix * *vertex;
+        }
+        for normal in self.normals.iter_mut() {
+            *normal = rotation_matrix * *normal;
         }
         self
     }
@@ -153,7 +156,7 @@ impl Mesh {
                 let normal_b = self.normals[normal_indices.1];
                 let normal_c = self.normals[normal_indices.2];
 
-                let shading_normal =
+                let mut shading_normal =
                     closest_alpha * normal_a + closest_beta * normal_b + closest_gamma * normal_c;
 
                 shading_normal.normalized()

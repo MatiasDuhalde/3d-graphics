@@ -1,4 +1,7 @@
-use {crate::utils::Vector3, std::fs};
+use {
+    crate::utils::{Vector3, GAMMA_CORRECTION},
+    std::fs,
+};
 
 pub struct Texture {
     data: Vec<Vector3>,
@@ -61,9 +64,9 @@ impl Texture {
             .map(|p| {
                 let channels = p.0;
                 Vector3::new(
-                    channels[0] as f64 / 255.,
-                    channels[1] as f64 / 255.,
-                    channels[2] as f64 / 255.,
+                    (channels[0] as f64 / 255.).powf(1. / GAMMA_CORRECTION),
+                    (channels[1] as f64 / 255.).powf(1. / GAMMA_CORRECTION),
+                    (channels[2] as f64 / 255.).powf(1. / GAMMA_CORRECTION),
                 )
             })
             .collect();

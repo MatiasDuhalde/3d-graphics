@@ -12,15 +12,28 @@ The following libraries are used:
 
 ## Usage
 
-To run the package, use:
+To compile and run the ray tracer, one must have Rust and Cargo installed. This can be very easily done by following the instructions in the official Rust website: <https://doc.rust-lang.org/cargo/getting-started/installation.html>
+
+The ray tracer can be compiled with the following command:
 
 ```bash
-cargo run --release
+cargo build --release
 ```
 
-The scene can be modified in the `src/main.rs` file.
+Note that some warnings may appear, all of which are related to unused methods or dead code. These can be safely ignored.
 
-This will output an image file (name can be modified in the `src/main.rs` file) in the root directory.
+This will build an optimized binary in the `target/release` directory. The ray tracer can then be run with the following command:
+
+```bash
+# either
+cargo run --release
+# or
+./target/release/raytracing-rust
+```
+
+This will render a scene and save the result to an image file.
+
+Currently, there is no way of describing the scene in a separate file, so the scene is hard-coded in the `main.rs` file. This file contains several functions that define different scenes.
 
 The parameters of the scene can be modified in the `src/utils/constants.rs` file. The following parameters can be modified.
 

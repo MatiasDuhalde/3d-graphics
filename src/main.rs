@@ -187,6 +187,7 @@ fn simple_cat() -> Image {
 }
 
 fn main() {
+    println!("This program will generate a cat!!");
     let mut image = simple_cat();
     image.draw();
     image.save("textured_cat.png");

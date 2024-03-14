@@ -2,3 +2,4 @@
 /assets
 
 *.png
+!figures/*.png

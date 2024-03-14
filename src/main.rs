@@ -279,7 +279,7 @@ fn spherical_lights_demo() {
     let camera = Camera::new(
         Vector3::new(50., 50., 40.),
         Vector3::new(-PI / 4., 0., 3. * PI / 4.),
-        7. * PI / 180.,
+        75. * PI / 180.,
     );
 
     let mut image = Image::new(512, 512, camera, scene);
@@ -420,7 +420,7 @@ fn main() {
     // benchmark(fresnel_demo, 1);
     // benchmark(indirect_lighting_demo, 1);
     // benchmark(antialiasing_demo, 1);
-    // benchmark(spherical_lights_demo, 1);
+    benchmark(spherical_lights_demo, 1);
     // benchmark(meshes_demo, 1);
     // benchmark(mesh_normals_and_texture_mapping_demo, 1);
 }

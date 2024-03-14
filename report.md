@@ -225,6 +225,7 @@ Note: This image also showcases the mesh rotation feature, and the transparent a
 - Elements:
   - 6 opaque spheres (6 big for the walls)
   - 1 textured mesh
+  - 1 mirror sphere
   - 1 point light
 - Parameters:
   - Max recursion: 5
@@ -233,7 +234,7 @@ Note: This image also showcases the mesh rotation feature, and the transparent a
   - Indirect lighting: on
   - Anti-aliasing: on
   - Normal interpolation: on
-- Time: 268.343 s (4 min and 28.343 s)
+- Time: 187.269 s (3 min and 7.269 s)
 
 ### Scene 9: Custom scene
 

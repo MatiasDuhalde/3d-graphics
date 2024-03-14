@@ -340,28 +340,37 @@ fn mesh_normals_and_texture_mapping_demo() {
 
     let mut builder = MeshObjectBuilder::new(&cat_mesh);
     builder
-        .with_rotation(Vector3::new(PI / 2., 0., PI / 2.))
-        .with_translation(Vector3::new(0., 30., -15.))
+        .with_rotation(Vector3::new(PI / 2., 0., -PI))
+        .with_translation(Vector3::new(20., 20., -15.))
         .with_scale(0.6)
-        .with_color(Vector3::new(1., 1., 1.));
-    // .with_texture(cat_texture);
+        .with_texture(cat_texture);
 
     let cat_object = builder.build();
 
-    let light_source = PointLightSource::new(Vector3::new(20., 55., 0.), 5E9);
+    let intensity = 5E9;
+
+    let light_sphere = SphereBuilder::new(Vector3::new(10., 25., 10.), 5.)
+        .with_light_intensity(intensity)
+        .build();
+
+    let mirror_sphere = SphereBuilder::new(Vector3::new(-25., 20., 5.), 15.)
+        .with_mirror(true)
+        .build();
 
     let mut scene = Scene::new();
 
     scene
         .add_object(Box::new(cat_object))
-        .add_light_source(Box::new(light_source));
+        .add_object(Box::new(mirror_sphere))
+        .add_object(Box::new(light_sphere.clone()))
+        .add_light_source(Box::new(light_sphere));
 
     add_walls(&mut scene);
 
     let camera = Camera::new(
-        Vector3::new(0., 55., 0.),
-        Vector3::new(0., 0., PI),
-        75. * PI / 180.,
+        Vector3::new(0., 35., 5.),
+        Vector3::new(0., 0., 7. * PI / 8.),
+        90. * PI / 180.,
     );
 
     let mut image = Image::new(512, 512, camera, scene);
@@ -413,7 +422,5 @@ fn main() {
     // benchmark(antialiasing_demo, 1);
     // benchmark(spherical_lights_demo, 1);
     // benchmark(meshes_demo, 1);
-    benchmark(mesh_normals_and_texture_mapping_demo, 1);
-    // benchmark(mesh_texture_mapping_demo, 1);
-    // benchmark(meshes_demo, 1);
+    // benchmark(mesh_normals_and_texture_mapping_demo, 1);
 }

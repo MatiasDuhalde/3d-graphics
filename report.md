@@ -59,6 +59,7 @@ The extra features that were implemented are:
 - Specular and refractive meshes
 - Full rotation, translation, and scaling of meshes
 - Fully adjustable camera: position, direction, rotation, field of view, resolution
+- Multiple light sources
 
 The missing features are:
 
@@ -78,7 +79,7 @@ Note that all simulations are parallelized and all produced images have a resolu
 
 <figure style="page-break-inside:avoid">
     <div style="display:flex;justify-content:center;">
-        <img src="./figures/basic_spheres.png" alt="Basic spheres" style="width:50%" />
+        <img src="./figures/basic_spheres_demo.png" alt="Basic spheres" style="width:50%" />
     </div>
 </figure>
 
@@ -88,25 +89,153 @@ Note that all simulations are parallelized and all produced images have a resolu
 - Parameters:
   - Max recursion: 1
   - Rays per pixel: 1
-- Time: 0.00s
+- Time: 0.007 s
 
 ### Scene 2: Reflection and refraction spheres
 
+<figure style="page-break-inside:avoid">
+    <div style="display:flex;justify-content:center;">
+        <img src="./figures/mirror_glass_spheres_demo.png" alt="Mirror glass spheres" style="width:50%" />
+    </div>
+</figure>
+
+- Elements:
+  - 7 opaque spheres (6 big for the walls, 1 small)
+  - 1 mirror sphere
+  - 1 glass sphere
+  - 1 point light
+- Parameters:
+  - Max recursion: 5
+  - Rays per pixel: 1
+- Time: 0.008 s
+
 ### Scene 3: Fresnel effect
+
+<figure style="page-break-inside:avoid">
+    <div style="display:flex;justify-content:center;">
+        <img src="./figures/fresnel_demo.png" alt="Fresnel" style="width:50%" />
+    </div>
+</figure>
+
+- Elements:
+  - 7 opaque spheres (6 big for the walls, 1 small)
+  - 1 mirror sphere
+  - 1 glass sphere
+  - 1 point light
+- Parameters:
+  - Max recursion: 5
+  - Rays per pixel: 4096
+  - Fresnel: on
+- Time: 29.658 s
+
+Note: This image also showcases the camera rotation feature.
 
 ### Scene 4: Indirect lighting
 
+<figure style="page-break-inside:avoid">
+    <div style="display:flex;justify-content:center;">
+        <img src="./figures/indirect_lighting_demo.png" alt="Indirect lighting" style="width:50%" />
+    </div>
+</figure>
+
+- Elements:
+  - 10 opaque spheres (6 big for the walls, 4 small)
+  - 1 point light
+- Parameters:
+  - Max recursion: 5
+  - Rays per pixel: 1024
+  - Indirect lighting: on
+- Time: 44.388 s
+
 ### Scene 5: Anti-aliasing
+
+<figure style="page-break-inside:avoid">
+    <div style="display:flex;justify-content:center;">
+        <img src="./figures/antialiasing_demo.png" alt="Indirect lighting" style="width:50%" />
+    </div>
+</figure>
+
+- Elements:
+  - 9 opaque spheres (6 big for the walls, 3 small)
+  - 1 glass sphere
+  - 1 mirror sphere
+  - 1 point light
+- Parameters:
+  - Max recursion: 5
+  - Rays per pixel: 1024
+  - Fresnel: on
+  - Indirect lighting: on
+  - Anti-aliasing: on
+- Time: 45.809 s
 
 ### Scene 6: Spherical lights (Soft shadows)
 
+<figure style="page-break-inside:avoid">
+    <div style="display:flex;justify-content:center;">
+        <img src="./figures/spherical_lights_demo.png" alt="Spherical lights" style="width:50%" />
+    </div>
+</figure>
+
+- Elements:
+  - 6 opaque spheres (6 big for the walls)
+  - 1 glass sphere
+  - 1 mirror sphere
+  - 2 light spheres
+- Parameters:
+  - Max recursion: 5
+  - Rays per pixel: 1024
+  - Fresnel: on
+  - Indirect lighting: on
+  - Anti-aliasing: on
+- Time: 52.407 s
+
+Note: This image also showcases multiple light sources.
+
 ### Scene 7: Meshes
 
-### Scene 8: Mesh normal interpolation
+<figure style="page-break-inside:avoid">
+    <div style="display:flex;justify-content:center;">
+        <img src="./figures/meshes_demo.png" alt="Meshes" style="width:50%" />
+    </div>
+</figure>
 
-### Scene 9: Mesh texture mapping
+- Elements:
+  - 6 opaque spheres (6 big for the walls)
+  - 1 transparent mesh
+  - 1 specular mesh
+  - 1 point light
+- Parameters:
+  - Max recursion: 5
+  - Rays per pixel: 1024
+  - Fresnel: on
+  - Indirect lighting: on
+  - Anti-aliasing: on
+- Time: 268.343 s (4 min and 28.343 s)
 
-### Scene 10: Custom scene
+Note: This image also showcases the mesh rotation feature, and the transparent and specular meshes.
+
+### Scene 8: Mesh normals and texture mapping
+
+<figure style="page-break-inside:avoid">
+    <div style="display:flex;justify-content:center;">
+        <img src="./figures/mesh_normals_and_texture_mapping_demo.png" alt="Mesh normals and texture mapping" style="width:50%" />
+    </div>
+</figure>
+
+- Elements:
+  - 6 opaque spheres (6 big for the walls)
+  - 1 textured mesh
+  - 1 point light
+- Parameters:
+  - Max recursion: 5
+  - Rays per pixel: 1024
+  - Fresnel: on
+  - Indirect lighting: on
+  - Anti-aliasing: on
+  - Normal interpolation: on
+- Time: 268.343 s (4 min and 28.343 s)
+
+### Scene 9: Custom scene
 
 ## Comments on the course
 

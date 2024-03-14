@@ -80,7 +80,14 @@ impl Texture {
 
     pub fn get_color(&self, point: &Vector3) -> Vector3 {
         let x = (point.x() * self.width as f64) as usize;
-        let y = self.height - (point.y() * self.height as f64) as usize;
-        self.data[y * self.width + x]
+        let y = self.height - 1 - (point.y() * self.height as f64) as usize;
+        let index = y * self.width + x;
+        if index > self.data.len() {
+            println!("Index out of bounds: {}", index);
+            println!("x: {}, y: {}", point.x(), point.y());
+            println!("x: {}, y: {}", x, y);
+            return Vector3::new(0., 0., 0.);
+        }
+        self.data[index]
     }
 }

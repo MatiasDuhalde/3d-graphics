@@ -3,7 +3,7 @@ use {
         core::{Intersectable, Intersection, Ray},
         utils::{calculate_rotation_matrix, Vector3, ENABLE_NORMAL_MAPPING, MESH_EPSILON},
     },
-    std::{fs, net},
+    std::fs,
 };
 
 #[derive(Clone)]

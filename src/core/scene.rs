@@ -206,7 +206,7 @@ impl Scene {
             let color = self.calculate_color_recursive(&indirect_intersection, depth + 1, true);
             intersection
                 .get_object()
-                .get_color()
+                .calculate_color(intersection)
                 .hadamard_product(&color)
         } else {
             Vector3::new(0., 0., 0.)

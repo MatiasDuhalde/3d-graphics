@@ -26,8 +26,11 @@ pub fn random_cos(vector: &Vector3) -> Vector3 {
     let y = u1.sin() * u2;
     let z = r2.sqrt();
 
-    // FIXME: Edge case when normal is (0, 0, 1)
-    let t1 = vector.cross(&Vector3::new(0., 0., 1.)).normalize();
+    let t1 = if vector.z().abs() > 0.9 {
+        vector.cross(&Vector3::new(1., 0., 0.)).normalize()
+    } else {
+        vector.cross(&Vector3::new(0., 0., 1.)).normalize()
+    };
     let t2 = vector.cross(&t1).normalize();
 
     (t1 * x + t2 * y + *vector * z).normalize()

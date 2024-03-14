@@ -115,7 +115,7 @@ impl Image {
 
         let fov_scale = f64::tan(self.camera.get_fov() / 2.);
 
-        let x = -(j as f64 + 0.5) + (self.width as f64 / 2.);
+        let x = (j as f64 + 0.5) - (self.width as f64 / 2.);
         let y = self.width as f64 / (2. * fov_scale);
         let z = -((i as f64 + 0.5) - (self.height as f64 / 2.));
 

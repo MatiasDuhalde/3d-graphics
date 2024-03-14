@@ -236,8 +236,6 @@ Note: This image also showcases the mesh rotation feature, and the transparent a
   - Normal interpolation: on
 - Time: 187.269 s (3 min and 7.269 s)
 
-### Scene 9: Custom scene
-
 ## Comments on the course
 
 I'm very satisfied with the course. I found it very unique, in the sense that it's very different to everything I've done here in Centrale or in my home university PUC Chile.

@@ -420,7 +420,7 @@ fn main() {
     // benchmark(fresnel_demo, 1);
     // benchmark(indirect_lighting_demo, 1);
     // benchmark(antialiasing_demo, 1);
-    benchmark(spherical_lights_demo, 1);
+    // benchmark(spherical_lights_demo, 1);
     // benchmark(meshes_demo, 1);
-    // benchmark(mesh_normals_and_texture_mapping_demo, 1);
+    benchmark(mesh_normals_and_texture_mapping_demo, 1);
 }

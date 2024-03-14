@@ -156,7 +156,7 @@ impl Mesh {
                 let normal_b = self.normals[normal_indices.1];
                 let normal_c = self.normals[normal_indices.2];
 
-                let mut shading_normal =
+                let shading_normal =
                     closest_alpha * normal_a + closest_beta * normal_b + closest_gamma * normal_c;
 
                 shading_normal.normalized()
@@ -207,26 +207,19 @@ impl Mesh {
                 continue;
             }
             match parts[0] {
-                "v" => vertices.push(parse_vector_from_tokens(parts)),
-                "vn" => normals.push(parse_vector_from_tokens(parts)),
-                "vt" => uvs.push(parse_vector_from_tokens(parts)),
-                "f" => {
-                    let mut vertex_indices: [usize; 3] = [0, 0, 0];
-                    let mut normal_indices: [usize; 3] = [0, 0, 0];
-                    let mut uv_indices: [usize; 3] = [0, 0, 0];
-                    for i in 0..3 {
-                        let face_parts: Vec<&str> = parts[i + 1].split('/').collect();
-                        vertex_indices[i] = face_parts[0].parse::<usize>().unwrap() - 1;
-                        uv_indices[i] = face_parts[1].parse::<usize>().unwrap() - 1;
-                        normal_indices[i] = face_parts[2].parse::<usize>().unwrap() - 1;
-                    }
-                    triangles.push(TriangleIndices {
-                        vertex_indices: (vertex_indices[0], vertex_indices[1], vertex_indices[2]),
-                        normal_indices: (normal_indices[0], normal_indices[1], normal_indices[2]),
-                        uv_indices: (uv_indices[0], uv_indices[1], uv_indices[2]),
-                    })
+                "v" => vertices.push(Self::parse_vertex(&parts)),
+                "vn" => normals.push(Self::parse_normal(&parts)),
+                "vt" => uvs.push(Self::parse_uv(&parts)),
+                "vp" => {} // vp is not supported
+                "f" => triangles.push(Self::parse_face(&parts)),
+                "mtllib" => {} // mtllib is managed elsewhere
+                "usemtl" => {} // usemtl is managed elsewhere
+                "s" => {}      // s is managed globally
+                "g" => {}      // g is not supported
+                "#" => {}      // comment
+                _ => {
+                    println!("Unknown line: {}", line);
                 }
-                _ => {}
             }
         }
 
@@ -237,11 +230,69 @@ impl Mesh {
             triangles,
         }
     }
-}
 
-fn parse_vector_from_tokens(tokens: Vec<&str>) -> Vector3 {
-    let x = tokens[1].parse::<f64>().unwrap();
-    let y = tokens[2].parse::<f64>().unwrap();
-    let z = tokens[3].parse::<f64>().unwrap();
-    Vector3::new(x, y, z)
+    fn parse_vertex(tokens: &Vec<&str>) -> Vector3 {
+        if tokens.len() < 4 {
+            panic!("Invalid vertex line: {:?}", tokens);
+        }
+        let x = tokens[1].parse::<f64>().unwrap();
+        let y = tokens[2].parse::<f64>().unwrap();
+        let z = tokens[3].parse::<f64>().unwrap();
+
+        // the w component is optional, and not used in this context
+        let _w = if tokens.len() > 4 {
+            tokens[4].parse::<f64>().unwrap()
+        } else {
+            1.
+        };
+        Vector3::new(x, y, z)
+    }
+
+    fn parse_normal(tokens: &Vec<&str>) -> Vector3 {
+        if tokens.len() < 4 {
+            panic!("Invalid normal line: {:?}", tokens);
+        }
+        let x = tokens[1].parse::<f64>().unwrap();
+        let y = tokens[2].parse::<f64>().unwrap();
+        let z = tokens[3].parse::<f64>().unwrap();
+        Vector3::new(x, y, z).normalized()
+    }
+
+    fn parse_uv(tokens: &Vec<&str>) -> Vector3 {
+        if tokens.len() < 2 {
+            panic!("Invalid uv line: {:?}", tokens);
+        }
+        let u = tokens[1].parse::<f64>().unwrap();
+        let v = if tokens.len() > 2 {
+            tokens[2].parse::<f64>().unwrap()
+        } else {
+            0.
+        };
+        let _w = if tokens.len() > 3 {
+            tokens[3].parse::<f64>().unwrap()
+        } else {
+            0.
+        };
+        Vector3::new(u, v, 0.)
+    }
+
+    fn parse_face(tokens: &Vec<&str>) -> TriangleIndices {
+        if tokens.len() < 4 {
+            panic!("Invalid face line: {:?}", tokens);
+        }
+        let mut vertex_indices: [usize; 3] = [0, 0, 0];
+        let mut normal_indices: [usize; 3] = [0, 0, 0];
+        let mut uv_indices: [usize; 3] = [0, 0, 0];
+        for i in 0..3 {
+            let face_parts: Vec<&str> = tokens[i + 1].split('/').collect();
+            vertex_indices[i] = face_parts[0].parse::<usize>().unwrap() - 1;
+            uv_indices[i] = face_parts[1].parse::<usize>().unwrap() - 1;
+            normal_indices[i] = face_parts[2].parse::<usize>().unwrap() - 1;
+        }
+        TriangleIndices {
+            vertex_indices: (vertex_indices[0], vertex_indices[1], vertex_indices[2]),
+            normal_indices: (normal_indices[0], normal_indices[1], normal_indices[2]),
+            uv_indices: (uv_indices[0], uv_indices[1], uv_indices[2]),
+        }
+    }
 }

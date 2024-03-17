@@ -236,6 +236,29 @@ Note: This image also showcases the mesh rotation feature, and the transparent a
   - Normal interpolation: on
 - Time: 187.269 s (3 min and 7.269 s)
 
+### Scene 9: Custom scene
+
+<figure style="page-break-inside:avoid">
+    <div style="display:flex;justify-content:center;">
+        <img src="./figures/cacodemon_demo.png" alt="Cacodemon" style="width:50%" />
+    </div>
+</figure>
+
+- Elements:
+  - 1 textured mesh (30k faces, 18k vertices)
+  - 1 opaque sphere
+  - 1 glass sphere
+  - 1 mirror sphere
+  - 1 light sphere
+- Parameters:
+  - Max recursion: 5
+  - Rays per pixel: 1024
+  - Fresnel: on
+  - Indirect lighting: on
+  - Anti-aliasing: on
+  - Normal interpolation: on
+- Time: 250.924 s (4 min and 10.924 s)
+
 ## Comments on the course
 
 I'm very satisfied with the course. I found it very unique, in the sense that it's very different to everything I've done here in Centrale or in my home university PUC Chile.

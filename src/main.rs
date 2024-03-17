@@ -379,6 +379,67 @@ fn mesh_normals_and_texture_mapping_demo() {
 }
 
 #[allow(dead_code)]
+fn custom_demo() {
+    let cacodemon_obj_file = "assets/cacodemon/cacodemon.obj";
+
+    let cacodemon_mesh = Mesh::from_obj_file(cacodemon_obj_file);
+    let cacodemon_texture = Texture::from_obj_file(cacodemon_obj_file);
+
+    let mut builder = MeshObjectBuilder::new(&cacodemon_mesh);
+    builder
+        .with_rotation(Vector3::new(PI / 2., 0., PI / 2.))
+        .with_scale(0.1)
+        .with_texture(cacodemon_texture);
+
+    let cacodemon_object = builder.build();
+
+    let intensity = 5E9;
+
+    let sphere_light = SphereBuilder::new(Vector3::new(-10., 40., 10.), 5.)
+        .with_light_intensity(intensity)
+        .build();
+
+    let mut scene = Scene::new();
+
+    let back_sphere = SphereBuilder::new(Vector3::new(-1000., -1000., 0.), 1400.)
+        .with_color(Vector3::new(0.3, 0.3, 0.3))
+        .build();
+
+    let dark_red = Vector3::new(0.5, 0., 0.);
+
+    let sphere_1 = SphereBuilder::new(Vector3::new(19., -3., 22.), 7.)
+        .with_color(dark_red)
+        .build();
+
+    let mirror_sphere = SphereBuilder::new(Vector3::new(-14., 14., -14.), 6.)
+        .with_mirror(true)
+        .build();
+
+    let glass_sphere = SphereBuilder::new(Vector3::new(-16., 16., 16.), 8.)
+        .with_refractive_index(1.5)
+        .build();
+
+    scene
+        .add_object(Box::new(cacodemon_object))
+        .add_object(Box::new(back_sphere))
+        .add_object(Box::new(sphere_1))
+        .add_object(Box::new(mirror_sphere))
+        .add_object(Box::new(glass_sphere))
+        .add_object(Box::new(sphere_light.clone()))
+        .add_light_source(Box::new(sphere_light));
+
+    let camera = Camera::new(
+        Vector3::new(15., 35., -17.),
+        Vector3::new(PI / 8., 0., 7. * PI / 8.),
+        75. * PI / 180.,
+    );
+
+    let mut image = Image::new(512, 512, camera, scene);
+    image.draw();
+    image.save("figures/cacodemon_demo.png");
+}
+
+#[allow(dead_code)]
 fn spinning_cat() {
     let cat_mesh = Mesh::from_obj_file("assets/cat/cat.obj");
 
@@ -422,5 +483,6 @@ fn main() {
     // benchmark(antialiasing_demo, 1);
     // benchmark(spherical_lights_demo, 1);
     // benchmark(meshes_demo, 1);
-    benchmark(mesh_normals_and_texture_mapping_demo, 1);
+    // benchmark(mesh_normals_and_texture_mapping_demo, 1);
+    benchmark(custom_demo, 1);
 }

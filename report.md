@@ -1,7 +1,7 @@
 # Computer Graphics - Ray Tracer Report
 
 - Student : Matías DUHALDE
-- Date : 2024-03-13
+- Date : 2024-03-17
 
 ## Introduction
 
@@ -9,9 +9,9 @@ This report describes and showcases the ray tracer implemented as a project for 
 
 The goal of the project was to implement a working, CPU-bound ray tracer that could render 3D scenes containing different elements such as spheres, meshes, and lights using computer graphics techniques.
 
-To achieve this, the ray tracer was written completely in **Rust** (!!) and it can be found in the following repository: <https://github.com/MatiasDuhalde/3d-graphics>
+To achieve this, the ray tracer was written completely in **Rust** (!!) and it can be found in the following repository: <https://github.com/MatiasDuhalde/3d-graphics>. The original sources of this report may also be found in this repository.
 
-This report will not go in depth into the code, but it will describe the main features of the ray tracer, the techniques used, the results obtained, some benchmarks, and some future improvements that could be made.
+This report will not go in depth into the code, but it will describe the main features of the ray tracer, the techniques used, the results obtained and benchmarks.
 The report is particularly visual, and it contains several images that showcase the ray tracer's capabilities.
 
 ## Implementation
@@ -30,6 +30,8 @@ The following external libraries were used in the project:
 - `image` for image manipulation and saving, analogous to the `stb_image` library used in the course.
 - `rand` for random number generation, analogous to the C++'s `random` standard library.
 - `rayon` for parallelism, analogous to OpenMP or other parallelism libraries.
+
+**No particular external code sources were used, but several chunks of the code are based on the C++ snippets shown in class.**
 
 ## Usage
 
@@ -74,6 +76,8 @@ This section showcases the features of the ray tracer with several images, rende
 The simulations were run on a **12th Gen Intel i5-12400F (12 cores) @ 4.400GHz** on Linux, using the optimized build.
 
 Note that all simulations are parallelized and all produced images have a resolution of 512x512 pixels.
+
+All images shown in this report are available in the `figures` directory in the repository: <https://github.com/MatiasDuhalde/3d-graphics>.
 
 ### Scene 1: Basic spheres
 
@@ -258,6 +262,8 @@ Note: This image also showcases the mesh rotation feature, and the transparent a
   - Anti-aliasing: on
   - Normal interpolation: on
 - Time: 250.924 s (4 min and 10.924 s)
+
+**Source of the model**: <https://sketchfab.com/3d-models/cacodemon-bcaf1f62eec74b1ab082d9d872675e04>. **Note**: The original files had to be modified in order to make the model compatible with the ray tracer. Notably, the format had to be converted from FBX into OBJ, and the meshes and textures had to be merged to one file. I achieved this by using [Blender](https://www.blender.org/).
 
 ## Comments on the course
 

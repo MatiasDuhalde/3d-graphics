@@ -12,7 +12,7 @@ The following libraries are used:
 
 ## Usage
 
-Some sample assets used in the main program are included in this repository, in the `assets` directory. These are tracked through Git LFS, which needs to be installed in order to pull the file (see <https://git-lfs.com/>).
+Some sample assets used in the main program are included in this repository, in the `assets` directory. These are tracked through Git LFS, which needs to be installed in order to pull the files (see <https://git-lfs.com/>).
 
 To compile and run the ray tracer, one must have Rust and Cargo installed. This can be very easily done by following the instructions in the official Rust website: <https://doc.rust-lang.org/cargo/getting-started/installation.html>
 

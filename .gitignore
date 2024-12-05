@@ -1,4 +1,5 @@
 /target
 
 *.png
+!assets/**/*.png
 !figures/*.png
